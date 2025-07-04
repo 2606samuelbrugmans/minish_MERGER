@@ -1,0 +1,153 @@
+#include "../inc/minishell.h"
+
+int	run(t_minishell *minish)
+{
+	int i;
+
+	i = 0;
+	if (built_in_parent(minish->instru[0].executable[0]->content) && minish->number_of_commands == 1)
+		exec_builtin(minish->instru[0].executable, minish);
+	else
+	{
+		// print_minishell(minish);
+		while (i < minish->number_of_commands)
+		{
+			if (pipe(minish->fd_pipes[i]) == -1 )
+				perror("bablda");				//put an actual message here
+			i++;
+		}
+		process(minish);
+	}
+	return (0);
+}
+void	wait_exit(t_minishell *minish, pid_t	last_pid)
+{
+	int index;
+	pid_t wait_pid;
+	int status;
+
+	index = 0;
+	while (index < minish->number_of_commands)
+	{
+		wait_pid = wait(&status);
+		if (wait_pid == last_pid)
+		{
+			if (WIFEXITED(status))
+				minish->last_exit_status = WEXITSTATUS(status);  
+			else if (WIFSIGNALED(status))
+				minish->last_exit_status = 128 + WTERMSIG(status); 
+		}
+		index++;
+	}
+
+}
+void	process(t_minishell *minish)
+{
+	pid_t	forked;
+	int		parser;
+	pid_t	last_pid;
+
+	last_pid = -1;
+	parser = 0;
+	while (parser < minish->number_of_commands)
+	{
+		forked = fork();
+		if (forked == -1)
+			perror("couldn't fork");
+		else if (forked == 0)
+			child_process(minish, &minish->instru[parser], parser);
+		else if (parser == minish->number_of_commands - 1)
+			last_pid = forked; 
+		parser++;
+	}
+	close_parent(minish);
+	wait_exit(minish, last_pid);
+}
+void	Path_not_found(char *pcommand)
+{
+
+	write(2, "bash: ", 6);
+	write(2, pcommand, ft_strlen(pcommand));
+	write(2, ": No such file or directory\n", 28);
+	exit(127);
+}
+void	child_process(t_minishell *minish, t_instructions *instr, int parser)
+{
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	// in the parsing should test if the path is absolute
+	if (is_builtin(instr->executable[0]->content))
+		instr->path_command = instr->executable[0]->content;
+	else if (access(instr->executable[0]->content, F_OK) == 0)		//should be X_OK no ? what if PATH is unset ?
+		instr->path_command = instr->executable[0]->content;
+	else
+		instr->path_command = path_finding(instr->executable[0]->content, &minish->envp);
+	if (instr->path_command == NULL)
+		Path_not_found(instr->executable[0]->content);
+	access_test(minish, instr, parser);
+	no_redirection_proc(minish, instr, parser);
+	if (is_builtin(instr->path_command))
+		exec_builtin(instr->executable, minish);
+	else
+		execute(minish, instr, parser);
+	exit(0);
+}
+
+void	execute(t_minishell *minish, t_instructions *instr, int parser)
+{
+	int	execror;
+
+	write(2, "reached execution\n", 19);			//see if still necessary
+	execror = execve(instr->path_command, instr->exec, NULL);
+	if (execror == -1)
+		error(minish, "execution failed", parser);
+}
+
+void close_parent(t_minishell *minish)
+{
+	int i;
+
+	i = 0;
+	while (i < minish->number_of_commands)
+	{
+		close(minish->fd_pipes[i][0]);
+		close(minish->fd_pipes[i][1]);
+        i++;
+	}
+}
+
+void close_stuff(t_minishell *minish, int parser)
+{
+	int i;
+
+	i = 0;
+	while (i < minish->number_of_commands)
+	{
+		if (i != parser - 1)
+			close(minish->fd_pipes[i][0]); // not reading from this
+		if (i != parser)
+			close(minish->fd_pipes[i][1]); // not writing to this
+        i++;
+	}
+}
+
+void	error(t_minishell *minish, char *reason, int parser)
+{
+	int	index;
+
+	index = 0;
+	ft_putstr_fd(reason, 2);
+	if (minish->instru[parser].path_command)
+		free(minish->instru[parser].path_command);
+	if (minish->instru[parser].executable)
+	{
+		while (minish->instru[parser].executable[index] != NULL)
+		{
+			free(minish->instru[parser].executable[index]);
+			index++;
+		}
+		free(minish->instru[parser].executable);
+	}
+	exit(-1);
+}
+
