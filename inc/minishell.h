@@ -183,7 +183,7 @@ void no_redirection_proc(t_minishell *minish, t_instructions *instr, int parser)
 int is_builtin(char *cmd);
 int built_in_parent(char *cmd);
 int exec_builtin(t_token **executables, t_minishell *shell);
-int builtin_echo(t_token **executables);
+int builtin_echo(t_token **exec, t_minishell *minish, int i, int j, int n);
 
 //path
 char	*path_finding(char *pathed, t_env **envp);
@@ -192,6 +192,7 @@ int	find_string(char **env, char *path);
 char	*get_path(char *command_to_path, char *paths, int index);
 int	path_len(char *string, int index);
 void	putcommand(char *command_to_path, char *potential_path, int size);
+int echo_dollar(t_token **exec, int i, int *j, char *var, t_minishell *minish);
 
 
 int builtin_env(char **envp);

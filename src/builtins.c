@@ -75,7 +75,7 @@ int exec_builtin(t_token **executables, t_minishell *shell, int from_parent)
 	if (!is_builtin(executables[0]->content))
 		return (-1);
 	if (ft_strcmp(executables[0]->content, "echo") == 0)
-		return builtin_echo(executables);
+		return builtin_echo(executables, shell);
 	// if (ft_strcmp(argv[0], "cd") == 0)
 	//	 return builtin_cd(argv, shell);
 	if (ft_strcmp(executables[0]->content, "pwd") == 0)
@@ -90,7 +90,7 @@ int exec_builtin(t_token **executables, t_minishell *shell, int from_parent)
 		return builtin_exit();
 	return (-1);
 	if (ft_strcmp(executables[0]->content, "echo") == 0)
-		return builtin_echo(executables);
+		return builtin_echo(executables, shell, 1, 0, 1);
 	// if (ft_strcmp(argv[0], "cd") == 0)
 	//	 return builtin_cd(argv, shell);
 	if (ft_strcmp(executables[0]->content, "pwd") == 0)
@@ -105,44 +105,61 @@ int exec_builtin(t_token **executables, t_minishell *shell, int from_parent)
 	//	 return builtin_exit();
 	return (-1);
 }
-
-int builtin_echo(t_token **executables)
+int echo_dollar(t_token **exec, int i, int *j, char *var, t_minishell *minish)
 {
-	int i;
-	int j;
-	int newline;
-	char *string_env;
+	int k;
+	char *val;
 
-	newline = 1;
-	i = 2;
-	j = 0;
-	if(executables[1] && executables[1]->content && ft_strcmp(executables[1]->content, "-n") == 0)
-		newline = 0;
-	while (executables[i])
+	(*j)++;
+	if (exec[i]->content[*j] == '?')
+		printf("%d", minish->last_exit_status), (*j)++;
+	else if (exec[i]->content[*j] == '$')
+		printf("%d", getpid()), (*j)++;
+	else if ((exec[i]->content[*j] >= 'A' && exec[i]->content[*j] <= 'Z') || (exec[i]->content[*j] >= 'a' && exec[i]->content[*j] <= 'z') || exec[i]->content[*j] == '_')
 	{
-		if (executables[i]->content && executables[i]->content[0] == '$')
+		k = 0;
+		while ((exec[i]->content[*j + k] >= 'A' && exec[i]->content[*j + k] <= 'Z') || (exec[i]->content[*j + k] >= 'a' && exec[i]->content[*j + k] <= 'z') || (exec[i]->content[*j + k] >= '0' && exec[i]->content[*j + k] <= '9') || exec[i]->content[*j + k] == '_')
+			k++;
+		if (k > 0 && k < 256)
 		{
-			if (executables[i]->content[1] == '?')
-			{
-				printf("%d", minish->last_exit_status);
-				i++;
-				continue;
-			}
-			else if (executables[i]->content[1] == '$')
-			{
-				string_env = getenv(executables[i]->content + 1);
-				if (string_env)
-					printf("%s", string_env);
-				i++;
-				continue;
-			}
+			ft_strncpy(var, exec[i]->content + *j, k);
+			var[k] = '\0';
+			val = getenv(var);
+			if (val)
+				printf("%s", val);
 		}
-		printf("%s", executables[i]->content);
-		if (executables[i + 1])
+		*j += k;
+	}
+	else
+		ft_putchar('$');
+	return (*j);
+}
+
+int builtin_echo(t_token **exec, t_minishell *minish, int i, int j, int n)
+{
+	char var[256];
+	char *val;
+
+	while (exec[i] && exec[i]->content && is_n_flag(exec[i]->content))
+	{
+		n = 0;
+		i++;
+	}
+	while (exec[i])
+	{
+		j = 0;
+		while (exec[i]->content[j])
+		{
+			if (exec[i]->content[j] == '$')
+				echo_dollar(exec, i, &j, var, minish);
+			else
+				ft_putchar(exec[i]->content[j++]);
+		}
+		if (exec[i + 1])
 			printf(" ");
 		i++;
 	}
-	if (newline)
+	if (n)
 		printf("\n");
 	return (0);
 }
