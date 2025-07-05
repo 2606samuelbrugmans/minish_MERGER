@@ -6,7 +6,7 @@ int	run(t_minishell *minish)
 
 	i = 0;
 	if (built_in_parent(minish->instru[0].executable[0]->content) && minish->number_of_commands == 1)
-		exec_builtin(minish->instru[0].executable, minish);
+		minish->last_exit_status = exec_builtin(minish->instru[0].executable, minish, 0);
 	else
 	{
 		// print_minishell(minish);
@@ -17,6 +17,11 @@ int	run(t_minishell *minish)
 			i++;
 		}
 		process(minish);
+	}
+	if (minish->last_exit_status == -2) // if the user typed exit
+	{
+		free_minishell(minish);
+		exit(0);
 	}
 	return (0);
 }
@@ -68,7 +73,7 @@ void	Path_not_found(char *pcommand)
 
 	write(2, "bash: ", 6);
 	write(2, pcommand, ft_strlen(pcommand));
-	write(2, ": No such file or directory\n", 28);
+	write(2, ": No such file or directory\n", 28); // this is the error message for a command not found
 	exit(127);
 }
 void	child_process(t_minishell *minish, t_instructions *instr, int parser)
@@ -87,20 +92,22 @@ void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 	access_test(minish, instr, parser);
 	no_redirection_proc(minish, instr, parser);
 	if (is_builtin(instr->path_command))
-		exec_builtin(instr->executable, minish);
+		exec_builtin(instr->executable, minish, 1); 
 	else
 		execute(minish, instr, parser);
+	close_stuff(minish, parser);
+	free_minish(minish);
 	exit(0);
 }
 
 void	execute(t_minishell *minish, t_instructions *instr, int parser)
 {
-	int	execror;
+	int execror;
 
-	write(2, "reached execution\n", 19);			//see if still necessary
+	write(2, "reached execution\n", 19); //see if still necessary
 	execror = execve(instr->path_command, instr->exec, NULL);
 	if (execror == -1)
-		error(minish, "execution failed", parser);
+		error(minish, "execution failed", parser, 1); // child process: exit
 }
 
 void close_parent(t_minishell *minish)
@@ -131,7 +138,7 @@ void close_stuff(t_minishell *minish, int parser)
 	}
 }
 
-void	error(t_minishell *minish, char *reason, int parser)
+void	error(t_minishell *minish, char *reason, int parser, int should_exit)
 {
 	int	index;
 
@@ -148,6 +155,7 @@ void	error(t_minishell *minish, char *reason, int parser)
 		}
 		free(minish->instru[parser].executable);
 	}
-	exit(-1);
+	if (should_exit)
+		exit(-1);
 }
 

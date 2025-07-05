@@ -69,8 +69,26 @@ int built_in_parent(char *cmd)
 //	 }
 //	 return (0);
 // }
-int exec_builtin(t_token **executables, t_minishell *shell)
+int exec_builtin(t_token **executables, t_minishell *shell, int from_parent)
 {
+
+	if (!is_builtin(executables[0]->content))
+		return (-1);
+	if (ft_strcmp(executables[0]->content, "echo") == 0)
+		return builtin_echo(executables);
+	// if (ft_strcmp(argv[0], "cd") == 0)
+	//	 return builtin_cd(argv, shell);
+	if (ft_strcmp(executables[0]->content, "pwd") == 0)
+		return builtin_pwd();
+	// if (ft_strcmp(argv[0], "export") == 0)
+	//	 return builtin_export(argv, shell);
+	// if (ft_strcmp(argv[0], "unset") == 0)
+	//	 return builtin_unset(argv, shell);
+	// if (ft_strcmp(argv[0], "env") == 0)
+	//	 return builtin_env(shell->envp);
+	if (ft_strcmp(executables[0]->content, "exit") == 0 && from_parent)
+		return builtin_exit();
+	return (-1);
 	if (ft_strcmp(executables[0]->content, "echo") == 0)
 		return builtin_echo(executables);
 	// if (ft_strcmp(argv[0], "cd") == 0)
@@ -106,7 +124,7 @@ int builtin_echo(t_token **executables)
 		{
 			if (executables[i]->content[1] == '?')
 			{
-				// We need to determine the exit status / printf("%d", exit_status);
+				printf("%d", minish->last_exit_status);
 				i++;
 				continue;
 			}
@@ -244,10 +262,10 @@ int builtin_pwd(void)
 //	 return (0);
 // }
 
-// int builtin_exit(void)
-// {
-//	 return (-2);
-// }
+int builtin_exit(void)
+{
+	 return (-2);
+}
 
 // int builtin_unset(char **argv, t_minishell *minish)
 // {
