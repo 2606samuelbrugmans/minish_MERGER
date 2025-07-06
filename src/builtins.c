@@ -197,11 +197,32 @@ int edit_env(char *content, t_minishell *minish)
 		if (value == NULL)
 			return (free(value), -1);
 		remove_env_var(&minish->envp, var);
+		if (get_VAR(&minish->local_var, NULL, var) == -1)
+			update_env_value(minish->envp, var, value);
 		add_env_back(&minish->envp, var, value);
 		free(var);
 		free(value);
 	}
 	return (0);
+}
+
+int is_valid_identifier(const char *str)
+{
+    int i = 0;
+
+    if (!str || !str[0])
+        return 0;
+    if (!(ft_isalpha(str[i]) || str[i] == '_'))
+        return 0;
+    i++;
+    while (str[i] && str[i] != '=')
+    {
+        if (!(ft_isalnum(str[i]) || str[i] == '_'))
+            return 0;
+        i++;
+    }
+
+    return 1;
 }
  int builtin_export(t_token **executables, t_minishell *minish)
  {
@@ -214,8 +235,16 @@ int edit_env(char *content, t_minishell *minish)
 	{
 		while (executables[index])
 		{
-			if (ft_strchr(executables[index]->content, '=') != NULL)
+			if (!is_valid_identifier(executables[index]->content))
+			{
+				write(2, "bash: export: `", 15);
+				write(2, executables[index]->content, ft_strlen(executables[index]->content));
+				write(2, "': not a valid identifier\n", 27);
+			}
+			else if (ft_strchr(executables[index]->content, '=') != NULL)
 				edit_env(executables[index]->content, minish);
+			else if (get_VAR(&minish->envp, NULL, executables[index]->content) == -1)
+				add_env_back(&minish->envp, executables[index]->content, "");
 			index++;
 		}
 	}

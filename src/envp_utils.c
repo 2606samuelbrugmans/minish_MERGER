@@ -115,3 +115,20 @@ int	add_env_back(t_env **env_list, char *var, char *value)
 	temp->next = new;
 	return (0);
 }
+void update_env_value(t_env *env_list, const char *var_name, const char *new_value)
+{
+    t_env *current;
+
+	current = env_list;
+    while (current)
+    {
+        if (ft_strcmp(current->VAR, var_name) == 0)
+        {
+            if (current->value)
+                free(current->value);
+            current->value = ft_strdup(new_value);
+            return;
+        }
+        current = current->next;
+    }
+}
