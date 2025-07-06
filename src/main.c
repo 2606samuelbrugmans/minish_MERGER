@@ -49,6 +49,7 @@ void	init_minish(t_minishell **minish, char **envp)
 	(*minish)->instru = NULL;
 	(*minish)->number_of_commands = 0;
 	(*minish)->fd_pipes = NULL;
+	(*minish)->last_exit_status = 0;
 	if(!set_envp(&(*minish)->envp, envp))
 		exit_shell("Something went wrong while setting env\n", (*minish));
 }

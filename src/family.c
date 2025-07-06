@@ -92,7 +92,7 @@ void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 	access_test(minish, instr, parser);
 	no_redirection_proc(minish, instr, parser);
 	if (is_builtin(instr->path_command))
-		exec_builtin(instr->executable, minish, 1); 
+		exec_builtin(instr->executable, minish); 
 	else
 		execute(minish, instr, parser);
 	close_stuff(minish, parser);

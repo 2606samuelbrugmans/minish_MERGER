@@ -12,7 +12,7 @@ SRCS = $(wildcard src/*.c) \
 		# basic2.c \
 		# debug_shit.c
 
-INC = inc/minishell.h
+INC = inc
 NAME = minishell
 
 OBJ = $(SRCS:.c=.o)

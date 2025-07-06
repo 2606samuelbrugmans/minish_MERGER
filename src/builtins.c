@@ -19,12 +19,12 @@ int	is_n_flag(const char *str)
 	return (1);
 }
 
-int	check_n_flags(int argc, char **argv)
+int	check_n_flags(char **argv)
 {
 	int i;
 
 	i = 1;
-	while (i < argc)
+	while (argv[i] != NULL)
 	{
 		if (is_n_flag(argv[i]))
 			i++;
@@ -57,137 +57,85 @@ int built_in_parent(char *cmd)
 		ft_strcmp(cmd, "exit") == 0
 	);
 }
-// int builtin_env(char **envp)
-// {
-//	 int index;
+int builtin_env(char **envp)
+{
+	int index;
 
-//	 index = 0;
-//	 while (envp[index] != NULL)
-//	 {
-//		 printf("%s", envp[index]);
-//		 index++;
-//	 }
-//	 return (0);
-// }
-int exec_builtin(t_token **executables, t_minishell *shell, int from_parent)
+	index = 0;
+	while (envp[index] != NULL)
+	{
+		printf("%s\n", envp[index]);
+		index++;
+	}
+	return (0);
+}
+int exec_builtin(t_token **executables, t_minishell *shell)
 {
 
 	if (!is_builtin(executables[0]->content))
 		return (-1);
 	if (ft_strcmp(executables[0]->content, "echo") == 0)
-		return builtin_echo(executables, shell);
-	// if (ft_strcmp(argv[0], "cd") == 0)
-	//	 return builtin_cd(argv, shell);
+		return builtin_echo(executables);
 	if (ft_strcmp(executables[0]->content, "pwd") == 0)
 		return builtin_pwd();
-	// if (ft_strcmp(argv[0], "export") == 0)
-	//	 return builtin_export(argv, shell);
-	// if (ft_strcmp(argv[0], "unset") == 0)
-	//	 return builtin_unset(argv, shell);
-	// if (ft_strcmp(argv[0], "env") == 0)
-	//	 return builtin_env(shell->envp);
-	if (ft_strcmp(executables[0]->content, "exit") == 0 && from_parent)
+	if (ft_strcmp(executables[0]->content, "exit") == 0 )
 		return builtin_exit();
-	return (-1);
-	if (ft_strcmp(executables[0]->content, "echo") == 0)
-		return builtin_echo(executables, shell, 1, 0, 1);
-	// if (ft_strcmp(argv[0], "cd") == 0)
-	//	 return builtin_cd(argv, shell);
-	if (ft_strcmp(executables[0]->content, "pwd") == 0)
-		return builtin_pwd();
-	// if (ft_strcmp(argv[0], "export") == 0)
-	//	 return builtin_export(argv, shell);
-	// if (ft_strcmp(argv[0], "unset") == 0)
-		// return builtin_unset(argv, shell);
-	// if (ft_strcmp(argv[0], "env") == 0)
-	//	 return builtin_env(shell->envp);
-	// if (ft_strcmp(argv[0], "exit") == 0)
-	//	 return builtin_exit();
+	if (ft_strcmp(executables[0]->content, "unset") == 0 )
+		return builtin_unset(executables, &shell->envp);
 	return (-1);
 }
-int echo_dollar(t_token **exec, int i, int *j, char *var, t_minishell *minish)
+int builtin_echo(t_token **executables)
 {
-	int k;
-	char *val;
+	int i;
+	int j;
+	int newline;
 
-	(*j)++;
-	if (exec[i]->content[*j] == '?')
-		printf("%d", minish->last_exit_status), (*j)++;
-	else if (exec[i]->content[*j] == '$')
-		printf("%d", getpid()), (*j)++;
-	else if ((exec[i]->content[*j] >= 'A' && exec[i]->content[*j] <= 'Z') || (exec[i]->content[*j] >= 'a' && exec[i]->content[*j] <= 'z') || exec[i]->content[*j] == '_')
+	i = 1;
+	j = 1;
+	newline = 1;
+	i = check_n_flags(executables);
+	if (i > 1)
+		newline = 0;
+	while (executables[i])
 	{
-		k = 0;
-		while ((exec[i]->content[*j + k] >= 'A' && exec[i]->content[*j + k] <= 'Z') || (exec[i]->content[*j + k] >= 'a' && exec[i]->content[*j + k] <= 'z') || (exec[i]->content[*j + k] >= '0' && exec[i]->content[*j + k] <= '9') || exec[i]->content[*j + k] == '_')
-			k++;
-		if (k > 0 && k < 256)
-		{
-			ft_strncpy(var, exec[i]->content + *j, k);
-			var[k] = '\0';
-			val = getenv(var);
-			if (val)
-				printf("%s", val);
-		}
-		*j += k;
-	}
-	else
-		ft_putchar('$');
-	return (*j);
-}
-
-int builtin_echo(t_token **exec, t_minishell *minish, int i, int j, int n)
-{
-	char var[256];
-	char *val;
-
-	while (exec[i] && exec[i]->content && is_n_flag(exec[i]->content))
-	{
-		n = 0;
-		i++;
-	}
-	while (exec[i])
-	{
-		j = 0;
-		while (exec[i]->content[j])
-		{
-			if (exec[i]->content[j] == '$')
-				echo_dollar(exec, i, &j, var, minish);
-			else
-				ft_putchar(exec[i]->content[j++]);
-		}
-		if (exec[i + 1])
+		printf("%s", executables[i]->content);
+		if (executables[i + 1])
 			printf(" ");
 		i++;
 	}
-	if (n)
+	if (newline)
 		printf("\n");
 	return (0);
 }
-// int builtin_cd(char **argv, t_minishell *minish)
-// {
-//	 char *path;
-//	 int home;
 
-//	 if (!argv[1])
-//	 {
-//		 home = find_string(minish->envp, "HOME");
-// 		if (home == -1)
-//		 {
-//			 write(2, "bash: cd: HOME not set", 23);
-// 			return (0);
-//		 }
-//		 path = getenv("HOME");
-//	 }
-//	 else
-//		 path = argv[1];
-//	 if (chdir(path) != 0)
-//	 {
-//		 perror("cd");
-//		 return 1;
-//	 }
-//	 // Update PWD and OLDPWD in env here
-//	 return 0;
-// }
+int builtin_cd(char **argv, t_minishell *minish)
+{
+	char *path;
+	int home;
+
+	if (!argv[1])
+	{
+		home = get_VAR(&minish->envp, NULL, "HOME");
+		if (home == -1)
+		{
+			write(2, "bash: cd: HOME not set\n", 23);
+			return (0);
+		}
+		path = getenv("HOME");
+	}
+	else
+		path = argv[1];
+	if (argv[2])
+		write(2, "bash: cd: too many arguments", 29);
+	else if (chdir(path) != 0)
+	{
+		perror("cd");
+		return 1;
+	}
+	else 
+		return 0;
+	return 1;
+}
 int builtin_pwd(void)
 {
 	char cwd[500];
@@ -198,139 +146,94 @@ int builtin_pwd(void)
 		perror("pwd");
 	return 0;
 }
-// int find_nth(char**envp, int meower)
-// {
-//	 int index = 0;
-//	 int current = -1;
+t_env *find_nth(t_env *smallest, t_env *bigger, t_env *envp)
+{
+	int has_changed;
 
-//	 while (envp[index] != NULL)
-//	 {
-//		 if (ft_strcmp(envp[index], envp[meower]) > 0)
-//		 {
-//			 if (current == -1 || ft_strcmp(envp[index], envp[current]) < 0)
-//				 current = index;
-//		 }
-//		 index++;
-//	 }
-//	 return (current);
-// }
-// int find_first(char **envp)
-// {
-//	 int index;
-//	 int tmp;
-//	 int index_two;
+	has_changed = -1;
+	while (envp)
+	{
+		if (is_between_env(envp, smallest, bigger) == 0)
+		{
+			bigger = envp;
+		}
+		envp = envp->next;
+	}
+	if (has_changed == -1)
+		return (NULL);
+	return (bigger);
 
-//	 index = 0;
-//	 tmp = ft_strcmp(envp[0], envp[1]);
-//	 if (tmp > 0)
-//		 index_two = 1;
-//	 else
-//		 index_two = 0;
-//	 index = 2;
-//	 while (envp[index] != NULL)
-//	 {
-//		 tmp = ft_strcmp(envp[index_two], envp[index]);
-//		 if (tmp > 0)
-//			 index_two = index;
-//		 index++;
-//	 }
-//	 return (index_two);
-// }
-// void print_declare(char **envp)
-// {
-//	 int *order;
-//	 int index;
-// 	int len;
+}
 
-// 	len =ft_sstrlen(envp);
-//	 order = malloc(sizeof(int) * + 1);
-//	 order[0] = ft_sstrlen(envp);
-//	 index = 2;
-//	 order[1] = find_first(envp);
-//	 while (index != order[0])
-//	 {
-//		 order[index] = find_nth(envp, order[index - 1]);
-//		 index++;
-//	 }
-//	 index = 1;
-//	 while (index != order[0])
-//	 {
-//		 printf("declare -x %s\n", envp[order[index]]);
-//		 index++;
-//	 }
-// }
-// int builtin_export(char **argv, t_minishell *minish)
-// {
-//	 int index;
+ void print_declare(t_env *envp)
+ {
+	t_env	*smallest;
+	t_env	*bigger;
 
-//	 index = 1;
-//	 if (argv[1] == NULL)
-//		 print_declare(minish->envp);
-//	 else
-//	 {
-//		 while (argv[index] != NULL)
-//		 {
-//			 if (ft_strchr(argv[index], '=') != NULL)
-//				 minish->envp = ft_sstrjoin(minish->envp, argv[index]);
-//			 index++;
-//		 }
-//	 }
+	bigger = find_first(envp);
+	printf("declare -x %s%s\n", bigger->VAR, bigger->value);
+	smallest = bigger;
+	while (bigger = find_nth(smallest, bigger, envp) != NULL)
+	{
+		printf("declare -x %s=%s\n", bigger->VAR, bigger->value);
+		smallest = bigger;
+	}
+	
 
-//	 return (0);
-// }
+ }
+int edit_env(char *content, t_minishell *minish)
+{
+	char	*equal_pos;
+	char	*var;
+	char	*value;
+
+	equal_pos = ft_strchr(content, '=');
+	if (equal_pos != NULL)
+	{
+		var = ft_substr(content, 0, equal_pos - content);
+		if (var == NULL)
+			return (-1);
+		value = ft_substr(equal_pos + 1, 0, ft_strlen(equal_pos + 1));
+		if (value == NULL)
+			return (free(value), -1);
+		remove_env_var(&minish->envp, var);
+		add_env_back(&minish->envp, var, value);
+		free(var);
+		free(value);
+	}
+	return (0);
+}
+ int builtin_export(t_token **executables, t_minishell *minish)
+ {
+	int index;
+
+	index = 1;
+	if (executables[1] == NULL)
+		 print_declare(minish->envp);
+	else
+	{
+		while (executables[index])
+		{
+			if (ft_strchr(executables[index]->content, '=') != NULL)
+				edit_env(executables[index]->content, minish);
+			index++;
+		}
+	}
+	return (0);
+ }
 
 int builtin_exit(void)
 {
 	 return (-2);
 }
 
-// int builtin_unset(char **argv, t_minishell *minish)
-// {
-//	 int where[ft_sstrlen(argv) - 1];
-//	 int index;
-
-//	 index = 0;
-//	 while (argv[index + 1] != NULL)
-//	 {
-//		 where[index] = find_string(minish->envp, argv[index + 1]);
-//		 index++;
-//	 }
-//	 minish->envp = remake_env(minish->envp, where, index);
-//	 return (0);
-// }
-// int is_in_where(int *repertoire, int index, int unseteds)
-// {
-//	 int explore;
-
-//	 explore = 0;
-//	 while (explore != unseteds)
-//	 {
-//		 if (repertoire[explore] == index)
-//			 return (0);
-//		 explore++;
-//	 }
-//	 return (-1);
-// }
-
-// char **remake_env(char **envpsrc, int *where, int unseteds)
-// {
-//	 char **envpdst;
-//	 int length;
-//	 int index;
-//	 int index_two;
-
-//	 length = ft_sstrlen(envpsrc) - unseteds;
-//	 envpdst = malloc(length + 1 * sizeof(char *));
-//	 index = 0;
-//	 index_two = 0;
-//	 while (envpsrc[index_two] != NULL)
-//	 {
-//		 if (!is_in_where(where, index_two, unseteds))
-//		 {
-//			 (envpdst[index] = envpsrc[index_two]);
-//			 index++;
-//		 }
-//		 index_two++;
-//	 }
-//	 return (envpdst);
-// }
+ int builtin_unset(t_token **executables, t_env **envp)
+ {
+	int i = 1;
+	while (executables[i])
+	{
+		remove_env_var(envp, executables[i]->content);
+		i++;
+	}
+	return (0);
+ }

@@ -90,6 +90,7 @@ typedef struct t_minishell
 {
 	t_env *envp;
 	t_env *local_var;
+	int		last_exit_status;
 	t_instructions *instru;
 	int		number_of_commands;
 	int		(*fd_pipes)[2];
@@ -183,27 +184,19 @@ void no_redirection_proc(t_minishell *minish, t_instructions *instr, int parser)
 int is_builtin(char *cmd);
 int built_in_parent(char *cmd);
 int exec_builtin(t_token **executables, t_minishell *shell);
-int builtin_echo(t_token **exec, t_minishell *minish, int i, int j, int n);
-
-//path
-char	*path_finding(char *pathed, t_env **envp);
-char	*potential_pathing(char *paths, char *command_to_path, int *index);
-int	find_string(char **env, char *path);
-char	*get_path(char *command_to_path, char *paths, int index);
-int	path_len(char *string, int index);
-void	putcommand(char *command_to_path, char *potential_path, int size);
-int echo_dollar(t_token **exec, int i, int *j, char *var, t_minishell *minish);
-
-
+int builtin_echo(t_token **executables);
+int check_n_flags(char **argv);
+int is_n_flag(const char *str);
 int builtin_env(char **envp);
 int builtin_cd(char **argv, t_minishell *minish);
 int builtin_pwd(void);
-int find_nth(char**envp, int meower);
-int find_first(char **envp);
-void print_declare(char **envp);
-int builtin_export(char **argv, t_minishell *minish);
+t_env *find_nth(t_env *smallest, t_env *bigger, t_env *envp);
+t_env *find_first(t_env *envp);
+void print_declare(t_env *envp);
+int edit_env(char *content, t_minishell *minish);
+int builtin_export(t_token **executables, t_minishell *minish);
 int builtin_exit(void);
-int builtin_unset(t_token **executables, t_minishell *minish);
+int builtin_unset(t_token **executables, t_env **envp);
 int is_in_where(int *repertoire, int index, int unseteds);
 
 
@@ -251,7 +244,12 @@ int is_in_where(int *repertoire, int index, int unseteds);
 // void print_minishell(t_minishell *minish);
 // void print_instructions(t_instructions *instr);
 
-
+int env_list_length(t_env *traveler);
+int remove_env_var(t_env **head, const char *var);
+t_env *find_first(t_env *envp);
+int is_between_env(t_env *envp, t_env *smallest, t_env *bigger);
+t_env *create_env_node(char *var, char *value);
+int add_env_back(t_env **env_list, char *var, char *value);
 
 
 #endif
