@@ -26,7 +26,6 @@ int first_check(char *input)
 
 	if (unclosed_quotes(input))
 	{
-		minish->last_exit_status = 2;
 		printf("Syntax error: Unclosed quotes.\n");
 		return(0);
 	}
@@ -34,7 +33,6 @@ int first_check(char *input)
 		index ++;
 	if(input[index] == '|')
 	{
-		minish->last_exit_status = 2;
 		printf("Syntax error near unexpected token `|'\n");
 		return(0);
 	}
@@ -43,7 +41,6 @@ int first_check(char *input)
 	{
 		if((unsigned char)input[index] < 32 && input[index] != '\t' && input[index] != '\n')
 		{
-			minish->last_exit_status = 2;
 			printf("Syntax error: Unescaped character: ASCII %d\n", input[index]);
 			return(0);
 		}
@@ -78,13 +75,11 @@ int redir_check(t_token *current, t_token *next)
 	{
 		if(!next)
 		{
-			minish->last_exit_status = 2;
 			printf("Syntax error near unexpected token `newline'\n");
 			return(0);
 		}
 		if(next->type != FILENAME)
 		{
-			minish->last_exit_status = 2;
 			printf("Syntax error near unexpected token `%s'\n", next->content);
 			return(0);
 		}
@@ -99,12 +94,10 @@ int pipe_check(t_token *current, t_token *next)
 		if(!next)
 		{
 			printf("Syntax error near unexpected token `newline'\n");
-			minish->last_exit_status = 2;
 			return(0);
 		}
 		if(next->type == PIPE)
 		{
-			minish->last_exit_status = 2;
 			printf("Syntax error near unexpected token `|'\n");
 			return(0);
 		}

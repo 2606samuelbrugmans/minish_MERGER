@@ -20,7 +20,7 @@ int treat_input(t_minishell **minish, char *input)
 	if(!input || *input == '\0')
 		return(1);
 	if(!first_check(input))
-		return(0);
+		return(3);
 	if(add_loc_var(&(*minish)->envp,&(*minish)->local_var, input))
 		return(1);
 	(*minish)->parsed_string = get_new_string(**minish, input);
@@ -28,7 +28,7 @@ int treat_input(t_minishell **minish, char *input)
 		return(0);		//handle error
 	cmd_as_tokens = tokenizer((*minish)->parsed_string);
 	if(!cmd_as_tokens)
-		return(0);		//handle errors
+		return(3);		//handle errors
 	(*minish)->number_of_commands = count_commands(cmd_as_tokens);
 	(*minish)->instru = init_insrtu((*minish), cmd_as_tokens);
 	if (!(*minish)->instru)
@@ -72,7 +72,8 @@ int	main(int ac, char **av, char **envp)
 			break;
 		if (input && *input) 
     		add_history(input);		
-		treat_input(&minish, input);
+		if (treat_input(&minish, input) == 3)
+			minish->last_exit_status = 2;
 		free(input);
 	}
 	free_minish(&minish);

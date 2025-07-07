@@ -6,7 +6,7 @@ int	run(t_minishell *minish)
 
 	i = 0;
 	if (built_in_parent(minish->instru[0].executable[0]->content) && minish->number_of_commands == 1)
-		minish->last_exit_status = exec_builtin(minish->instru[0].executable, minish, 0);
+		minish->last_exit_status = exec_builtin(minish->instru[0].executable, minish);
 	else
 	{
 		// print_minishell(minish);
@@ -18,9 +18,9 @@ int	run(t_minishell *minish)
 		}
 		process(minish);
 	}
-	if (minish->last_exit_status == -2) // if the user typed exit
+	if (ft_strcmp(minish->instru[0].executable[0]->content, "exit") == 0 ) // if the user typed exit
 	{
-		free_minishell(minish);
+		free_minish(&minish);
 		exit(0);
 	}
 	return (0);
@@ -96,7 +96,7 @@ void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 	else
 		execute(minish, instr, parser);
 	close_stuff(minish, parser);
-	free_minish(minish);
+	free_minish(&minish);
 	exit(0);
 }
 

@@ -172,6 +172,7 @@ void	execute(t_minishell *minish, t_instructions *instr, int parser);
 void close_parent(t_minishell *minish);
 void close_stuff(t_minishell *minish, int parser);
 void	error(t_minishell *minish, char *reason, int parser);
+char	*path_finding(char *pathed, t_env **envp);
 
 //access
 void 	access_test(t_minishell *minish, t_instructions *instr, int parser);
@@ -185,7 +186,7 @@ int is_builtin(char *cmd);
 int built_in_parent(char *cmd);
 int exec_builtin(t_token **executables, t_minishell *shell);
 int builtin_echo(t_token **executables);
-int check_n_flags(char **argv);
+int	check_n_flags(t_token **argv);
 int is_n_flag(const char *str);
 int builtin_env(char **envp);
 int builtin_cd(char **argv, t_minishell *minish);
@@ -197,59 +198,16 @@ int edit_env(char *content, t_minishell *minish);
 int builtin_export(t_token **executables, t_minishell *minish);
 int builtin_exit(void);
 int builtin_unset(t_token **executables, t_env **envp);
-int is_in_where(int *repertoire, int index, int unseteds);
 
-
-// char	*remove_quote(char *string, char quote);
-// void 	close_stuff(t_minishell *minish);
-// void	store(t_minishell *minish, int pars,
-// 	char *filename, char direction);
-// int		get_string(t_minishell *minish, int where, int pars, char direction);
-// void	skip_quotes(const char *str, int base_index, int *offset_index);
-// int 	count_commands(t_minishell *minish);
-// void 	pre_init_command(t_minishell *minish, int pars, int *where);
-// int 	get_file_and_redirection(t_minishell *minish, int where, int pars);
-// void 	set_up_redirection(t_minishell *minish, char direction, int type, int pars);
-// int		get_Command(t_minishell *minish, int location, int *has_command, int pars);
-// int		find_end_index(char *str, int where, char quote);
-// int		is_stopper(char c);
-// int		initialise(t_minishell *minish, char *string);
-
-// int		skip_spaces(char *str, int where);
-// int 	within_executable(t_minishell *minish, int i);
-// int 	redirection(t_minishell *minish, int i);
-// int 	not_quoted(t_minishell *minish);
-// void 	nested(t_minishell *minish, int parser);
-// int 	pipe_nested(t_minishell *minish, int length);
-// void	execute(t_minishell *minish, int parser);
-// void	process(t_minishell *minish);
-// int		run(t_minishell *minish);
-// void	error(t_minishell *minish, char *reason, int parser);
-// void	ft_putstr_fd(char *s, int fd);
-// size_t	ft_strlen(const char *s);
-// char	*ft_strdup(const char *s1);
-// void	store(t_minishell *minish, int pars,
-// 	char *filename, char direction);
-// int	count_quote(char *string, char c);
-// char	*ft_substr(char const *s, unsigned int start,
-// 	size_t len);
-// ////////////////////////////////// paths
-// char	*potential_pathing(char *paths, char *command_to_path, int *index);
-// int		find_string(char **env, char *path);
-// char	*get_path(char *command_to_path, char *paths, int index);
-// int	path_len(char *string, int index);
-// void	putcommand(char *command_to_path, char *potential_path, int size);
-// t_instructions init_instructions(t_instructions instr);
-// /////////////// debug
-// void print_minishell(t_minishell *minish);
-// void print_instructions(t_instructions *instr);
-
+///////////////////////////////////////////////////////ENVIRONMENT///////////////////////////////////////////////////////
 int env_list_length(t_env *traveler);
 int remove_env_var(t_env **head, const char *var);
 t_env *find_first(t_env *envp);
 int is_between_env(t_env *envp, t_env *smallest, t_env *bigger);
 t_env *create_env_node(char *var, char *value);
 int add_env_back(t_env **env_list, char *var, char *value);
+char *join_var_value(char *var, char *value);
+char	**env_list_to_array(t_env *env, int len);
 
 
 #endif

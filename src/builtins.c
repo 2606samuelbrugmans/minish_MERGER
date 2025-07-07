@@ -19,14 +19,14 @@ int	is_n_flag(const char *str)
 	return (1);
 }
 
-int	check_n_flags(char **argv)
+int	check_n_flags(t_token **argv)
 {
 	int i;
 
 	i = 1;
 	while (argv[i] != NULL)
 	{
-		if (is_n_flag(argv[i]))
+		if (is_n_flag(argv[i]->content))
 			i++;
 		else
 			break;
@@ -110,18 +110,22 @@ int builtin_echo(t_token **executables)
 
 int builtin_cd(char **argv, t_minishell *minish)
 {
+	t_env *home_var;
 	char *path;
-	int home;
 
 	if (!argv[1])
 	{
-		home = get_VAR(&minish->envp, NULL, "HOME");
-		if (home == -1)
+		home_var = get_VAR(&minish->envp, NULL, "HOME");
+		if (home_var == NULL)
 		{
 			write(2, "bash: cd: HOME not set\n", 23);
 			return (0);
 		}
-		path = getenv("HOME");
+		else if (chdir(home_var->value) != 0)
+		{
+			perror("cd");
+			return 1;
+		}
 	}
 	else
 		path = argv[1];
@@ -251,9 +255,32 @@ int is_valid_identifier(const char *str)
 	return (0);
  }
 
-int builtin_exit(void)
+int builtin_exit(t_token **executables)
 {
-	 return (-2);
+	int exit_status;
+
+	if (executables[1] == NULL)
+		return (0);
+	else if (executables[2] != NULL)
+	{
+		write(2, "bash: exit: too many arguments\n", 31);
+		return (2);
+	}
+	else if (ft_is_number(executables[1]->content) == 0)
+	{
+		write(2, "bash: exit: ", 12);
+		write(2, executables[1]->content, ft_strlen(executables[1]->content));
+		write(2, ": numeric argument required\n", 28);
+		exit_status = 255;
+	}
+	else
+	{
+		exit_status = atoi(executables[1]->content);
+		if (exit_status < 0 || exit_status > 255)
+			exit_status = exit_status % 256;
+	}
+	printf("exit %d\n", exit_status);
+	return (exit_status);
 }
 
  int builtin_unset(t_token **executables, t_env **envp)

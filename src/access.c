@@ -47,14 +47,14 @@ void	treat_redir_in(t_minishell *minish, t_redir *redir, int parser, int *fd)
 	if (redir->type == REDIR_IN)
 	{
 		if (access(redir->file_name, F_OK) != 0)
-			error(minish, "no such file or directory:", parser);
+			error(minish, "no such file or directory:", parser, 126);
 		else if (access(redir->file_name, R_OK) != 0)
-			error(minish, "permission denied:", parser);
+			error(minish, "permission denied:", parser, 126);
 		else
 		{
 			(*fd) = open(redir->file_name, O_RDONLY);		//dont need 777 when using O_RDONLY I think
 			if ((*fd) == -1)
-				error(minish, "couldn't open file", parser);
+				error(minish, "couldn't open file", parser, 126);
 		}
 	}
 	else if (redir->type == HEREDOC)

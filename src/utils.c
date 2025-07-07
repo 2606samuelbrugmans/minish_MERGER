@@ -186,3 +186,18 @@ int count_redir(t_commands **cmd_as_token, t_token_type redir_type)
 	}
 	return(count);
 }
+
+int ft_is_number(const char *str)
+{
+	int i = 0;
+
+	if (!str || !str[0])
+		return (0);
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i]))
+			return (0);
+		i++;
+	}
+	return (1);
+}

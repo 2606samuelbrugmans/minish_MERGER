@@ -149,7 +149,7 @@ char	**env_list_to_array(t_env *env, int len)
 		env_array[i] = join_var_value(env->VAR, env->value);
 		if (!env_array[i])
 		{
-			free_array(env_array, i);
+			free_tab(env_array);
 			return (NULL);
 		}
 		env = env->next;
@@ -167,8 +167,8 @@ char *join_var_value(char *var, char *value)
 	result = malloc(sizeof(char) * len);
 	if (!result)
 		return (NULL);
-	ft_strcpy(result, var);
-	ft_strcat(result, "=");
-	ft_strcat(result, value);
+	ft_strlcpy(result, var, strlen(var));
+	ft_strlcat(result, "=", strlen(value) + 1);
+	ft_strlcat(result, value, len);
 	return (result);
 }
