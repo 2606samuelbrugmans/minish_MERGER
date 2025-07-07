@@ -103,9 +103,16 @@ void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 void	execute(t_minishell *minish, t_instructions *instr, int parser)
 {
 	int execror;
+	char **valid_envp; // this is required to pass the environment variables to the child process
+	int len;
+
+	len = env_list_length(minish->envp);
+	valid_envp = env_list_to_array(minish->envp, len);
+	if (valid_envp == NULL)
+		error(minish, "Failed to convert environment variables to array", parser, 255);
 
 	write(2, "reached execution\n", 19); //see if still necessary
-	execror = execve(instr->path_command, instr->exec, NULL);
+	execror = execve(instr->path_command, instr->exec, valid_envp);
 	if (execror == -1)
 		error(minish, "execution failed", parser, 1); // child process: exit
 }
@@ -138,7 +145,7 @@ void close_stuff(t_minishell *minish, int parser)
 	}
 }
 
-void	error(t_minishell *minish, char *reason, int parser, int should_exit)
+void	error(t_minishell *minish, char *reason, int parser, int exit_status)
 {
 	int	index;
 
@@ -155,7 +162,6 @@ void	error(t_minishell *minish, char *reason, int parser, int should_exit)
 		}
 		free(minish->instru[parser].executable);
 	}
-	if (should_exit)
-		exit(-1);
+	exit(exit_status);
 }
 

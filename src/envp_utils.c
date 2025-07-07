@@ -115,6 +115,7 @@ int	add_env_back(t_env **env_list, char *var, char *value)
 	temp->next = new;
 	return (0);
 }
+
 void update_env_value(t_env *env_list, const char *var_name, const char *new_value)
 {
     t_env *current;
@@ -131,4 +132,43 @@ void update_env_value(t_env *env_list, const char *var_name, const char *new_val
         }
         current = current->next;
     }
+}
+char	**env_list_to_array(t_env *env, int len)
+{
+	char	**env_array;
+	int		i;
+
+	if (len <= 0)
+		return (NULL);
+	env_array = malloc(sizeof(char *) * (len + 1));
+	if (!env_array)
+		return (NULL);
+	i = 0;
+	while (env && i < len)
+	{
+		env_array[i] = join_var_value(env->VAR, env->value);
+		if (!env_array[i])
+		{
+			free_array(env_array, i);
+			return (NULL);
+		}
+		env = env->next;
+		i++;
+	}
+	env_array[i] = NULL;
+	return (env_array);
+}
+char *join_var_value(char *var, char *value)
+{
+	char *result;
+	size_t len;
+
+	len = strlen(var) + 1 + strlen(value) + 1;
+	result = malloc(sizeof(char) * len);
+	if (!result)
+		return (NULL);
+	ft_strcpy(result, var);
+	ft_strcat(result, "=");
+	ft_strcat(result, value);
+	return (result);
 }
