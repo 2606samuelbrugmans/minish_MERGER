@@ -27,7 +27,7 @@ int heredoc_handle(char *stop)
 		input = readline("> ");
 		if (input == NULL)
 			break;
-		if(!input || ft_strncmp(input, stop, ft_strlen(input)))
+		if(input && (ft_strncmp(input, stop, ft_strlen(input)) == 0))
 		{
 			free(input);
 			break;
@@ -47,34 +47,35 @@ void	treat_redir_in(t_minishell *minish, t_redir *redir, int parser, int *fd)
 	if (redir->type == REDIR_IN)
 	{
 		if (access(redir->file_name, F_OK) != 0)
-			error(minish, "no such file or directory:", parser, 126);
+			error(minish, "no such file or directory:", redir->file_name, 127);
 		else if (access(redir->file_name, R_OK) != 0)
-			error(minish, "permission denied:", parser, 126);
+			error(minish, "permission denied:", redir->file_name, 126);
 		else
 		{
 			(*fd) = open(redir->file_name, O_RDONLY);		//dont need 777 when using O_RDONLY I think
 			if ((*fd) == -1)
-				error(minish, "couldn't open file", parser, 126);
+				error(minish, "couldn't open file", redir->file_name, 126);
 		}
 	}
 	else if (redir->type == HEREDOC)
 	{
 		(*fd) = heredoc_handle(redir->file_name);
 		if((*fd) == -1)
-			error(minish, "heredoc error", parser);
+			error(minish, "heredoc error", NULL, 130); /// exit with sigint ??
+
 	}
 }
 
 void treat_redir_out(t_minishell *minish, t_redir *redir, int parser, int *fd)
 {
 	if (access(redir->file_name, F_OK) == 0 && access(redir->file_name, W_OK) != 0)
-		error(minish, "permission denied:", parser);
+		error(minish, "permission denied:", redir->file_name, 126);
 	if (redir->type == REDIR_OUT)
 		(*fd) = open(redir->file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	else if (redir->type == APPEND)
 		(*fd) = open(redir->file_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if((*fd) == -1)
-		error(minish, "couldn't open file", parser);
+		error(minish, "couldn't open file", redir->file_name, 126);
 }
 
 void access_test(t_minishell *minish, t_instructions *instr, int parser)
@@ -107,6 +108,8 @@ void access_test(t_minishell *minish, t_instructions *instr, int parser)
 
 void no_redirection_proc(t_minishell *minish, t_instructions *instr, int parser)
 {
+	// Debug: print nb_files_in
+	printf("[DEBUG] nb_files_in = %d\n", instr->nb_files_in);
 	//STDIN
 	if (instr->nb_files_in > 0)
 		dup2(instr->pipe[0], STDIN_FILENO);

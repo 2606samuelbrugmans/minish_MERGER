@@ -116,7 +116,7 @@ int	add_env_back(t_env **env_list, char *var, char *value)
 	return (0);
 }
 
-void update_env_value(t_env *env_list, const char *var_name, const char *new_value)
+int update_env_value(t_env *env_list, const char *var_name, const char *new_value)
 {
     t_env *current;
 
@@ -128,10 +128,13 @@ void update_env_value(t_env *env_list, const char *var_name, const char *new_val
             if (current->value)
                 free(current->value);
             current->value = ft_strdup(new_value);
-            return;
+            if (current->value == NULL)
+				return -1; // Memory allocation failed
+			return 0; // Successfully updated the value
         }
         current = current->next;
     }
+	return 1;
 }
 char	**env_list_to_array(t_env *env, int len)
 {

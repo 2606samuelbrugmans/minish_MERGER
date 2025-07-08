@@ -25,26 +25,23 @@ int	run(t_minishell *minish)
 	}
 	return (0);
 }
-void	wait_exit(t_minishell *minish, pid_t	last_pid)
+void	wait_exit(t_minishell *minish, pid_t last_pid)
 {
-	int index;
-	pid_t wait_pid;
-	int status;
+	int		status;
+	pid_t	pid;
 
-	index = 0;
-	while (index < minish->number_of_commands)
+	pid = wait(&status);
+	while (pid > 0)
 	{
-		wait_pid = wait(&status);
-		if (wait_pid == last_pid)
+		if (pid == last_pid)
 		{
 			if (WIFEXITED(status))
-				minish->last_exit_status = WEXITSTATUS(status);  
+				minish->last_exit_status = WEXITSTATUS(status);
 			else if (WIFSIGNALED(status))
-				minish->last_exit_status = 128 + WTERMSIG(status); 
+				minish->last_exit_status = 128 + WTERMSIG(status);
 		}
-		index++;
+		pid = wait(&status);
 	}
-
 }
 void	process(t_minishell *minish)
 {
@@ -60,7 +57,11 @@ void	process(t_minishell *minish)
 		if (forked == -1)
 			perror("couldn't fork");
 		else if (forked == 0)
+		{
+			signal(SIGINT, sigint_handler);
+    		signal(SIGQUIT, sigquit_handler);
 			child_process(minish, &minish->instru[parser], parser);
+		}
 		else if (parser == minish->number_of_commands - 1)
 			last_pid = forked; 
 		parser++;
@@ -68,19 +69,18 @@ void	process(t_minishell *minish)
 	close_parent(minish);
 	wait_exit(minish, last_pid);
 }
-void	Path_not_found(char *pcommand)
+void	Path_not_found(char *pcommand, t_minishell *minish)
 {
 
 	write(2, "bash: ", 6);
 	write(2, pcommand, ft_strlen(pcommand));
 	write(2, ": No such file or directory\n", 28); // this is the error message for a command not found
+	free_minish(&minish);
+	close_parent(minish);
 	exit(127);
 }
 void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 {
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
-	// in the parsing should test if the path is absolute
 	if (is_builtin(instr->executable[0]->content))
 		instr->path_command = instr->executable[0]->content;
 	else if (access(instr->executable[0]->content, F_OK) == 0)		//should be X_OK no ? what if PATH is unset ?
@@ -88,7 +88,7 @@ void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 	else
 		instr->path_command = path_finding(instr->executable[0]->content, &minish->envp);
 	if (instr->path_command == NULL)
-		Path_not_found(instr->executable[0]->content);
+		Path_not_found(instr->executable[0]->content, minish);
 	access_test(minish, instr, parser);
 	no_redirection_proc(minish, instr, parser);
 	if (is_builtin(instr->path_command))
@@ -109,12 +109,11 @@ void	execute(t_minishell *minish, t_instructions *instr, int parser)
 	len = env_list_length(minish->envp);
 	valid_envp = env_list_to_array(minish->envp, len);
 	if (valid_envp == NULL)
-		error(minish, "Failed to convert environment variables to array", parser, 255);
-
+		error(minish, "Failed to convert environment variables to array", NULL, 255);
 	write(2, "reached execution\n", 19); //see if still necessary
 	execror = execve(instr->path_command, instr->exec, valid_envp);
 	if (execror == -1)
-		error(minish, "execution failed", parser, 1); // child process: exit
+		error(minish, "execution failed", NULL, 1);
 }
 
 void close_parent(t_minishell *minish)
@@ -145,23 +144,14 @@ void close_stuff(t_minishell *minish, int parser)
 	}
 }
 
-void	error(t_minishell *minish, char *reason, int parser, int exit_status)
+void	error(t_minishell *minish, char *reason, char *specific, int exit_status)
 {
 	int	index;
 
 	index = 0;
+	ft_putstr_fd(specific, 2);
 	ft_putstr_fd(reason, 2);
-	if (minish->instru[parser].path_command)
-		free(minish->instru[parser].path_command);
-	if (minish->instru[parser].executable)
-	{
-		while (minish->instru[parser].executable[index] != NULL)
-		{
-			free(minish->instru[parser].executable[index]);
-			index++;
-		}
-		free(minish->instru[parser].executable);
-	}
+	free_minish(&minish);
 	exit(exit_status);
 }
 

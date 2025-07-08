@@ -4,13 +4,14 @@
 #include <signal.h>
 
 // Disable readline's default signal handlers
-rl_catch_signals = 0;
+extern int rl_catch_signals;
 
 void	sigint_handler(int sig)
 {
 	(void)sig;
 	// just print a newline and reset the prompt
 	// this is the behavior for ctrl+C (SIGINT)
+	write(1, "^C", 2);
 	write(1, "\n", 1);
 	rl_replace_line("", 0);
 	rl_on_new_line();
@@ -34,6 +35,8 @@ void	sigquit_handler(int sig)
 
 void	setup_signals(void)
 {
+	rl_catch_signals = 0;
+
 	signal(SIGINT, sigint_handler);
 	signal(SIGQUIT, sigquit_handler);
 	signal(SIGTERM, SIG_DFL);

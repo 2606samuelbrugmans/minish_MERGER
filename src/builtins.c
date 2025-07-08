@@ -79,9 +79,16 @@ int exec_builtin(t_token **executables, t_minishell *shell)
 	if (ft_strcmp(executables[0]->content, "pwd") == 0)
 		return builtin_pwd();
 	if (ft_strcmp(executables[0]->content, "exit") == 0 )
-		return builtin_exit();
+		return builtin_exit(executables);
 	if (ft_strcmp(executables[0]->content, "unset") == 0 )
 		return builtin_unset(executables, &shell->envp);
+	if (ft_strcmp(executables[0]->content, "cd") == 0)
+		return builtin_cd(executables[1]->content, shell);
+	if (ft_strcmp(executables[0]->content, "env") == 0)
+		return builtin_env(shell->envp);
+	if (ft_strcmp(executables[0]->content, "export") == 0)
+		return builtin_export(executables, shell);
+
 	return (-1);
 }
 int builtin_echo(t_token **executables)
@@ -108,12 +115,12 @@ int builtin_echo(t_token **executables)
 	return (0);
 }
 
-int builtin_cd(char **argv, t_minishell *minish)
+int builtin_cd(t_token **executables, t_minishell *minish)
 {
 	t_env *home_var;
 	char *path;
 
-	if (!argv[1])
+	if (!executables[1])
 	{
 		home_var = get_VAR(&minish->envp, NULL, "HOME");
 		if (home_var == NULL)
@@ -128,8 +135,8 @@ int builtin_cd(char **argv, t_minishell *minish)
 		}
 	}
 	else
-		path = argv[1];
-	if (argv[2])
+		path = executables[1]->content;
+	if (executables[2])
 		write(2, "bash: cd: too many arguments", 29);
 	else if (chdir(path) != 0)
 	{
@@ -158,15 +165,12 @@ t_env *find_nth(t_env *smallest, t_env *bigger, t_env *envp)
 	while (envp)
 	{
 		if (is_between_env(envp, smallest, bigger) == 0)
-		{
 			bigger = envp;
-		}
 		envp = envp->next;
 	}
 	if (has_changed == -1)
 		return (NULL);
 	return (bigger);
-
 }
 
  void print_declare(t_env *envp)
@@ -175,15 +179,16 @@ t_env *find_nth(t_env *smallest, t_env *bigger, t_env *envp)
 	t_env	*bigger;
 
 	bigger = find_first(envp);
+	if (bigger == NULL)
+		return ;
 	printf("declare -x %s%s\n", bigger->VAR, bigger->value);
 	smallest = bigger;
-	while (bigger = find_nth(smallest, bigger, envp) != NULL)
+	while (bigger != NULL)
 	{
 		printf("declare -x %s=%s\n", bigger->VAR, bigger->value);
 		smallest = bigger;
+		bigger = find_nth(smallest, bigger, envp);
 	}
-	
-
  }
 int edit_env(char *content, t_minishell *minish)
 {
@@ -201,7 +206,7 @@ int edit_env(char *content, t_minishell *minish)
 		if (value == NULL)
 			return (free(value), -1);
 		remove_env_var(&minish->envp, var);
-		if (get_VAR(&minish->local_var, NULL, var) == -1)
+		if (get_VAR(&minish->local_var, NULL, var) != NULL)
 			update_env_value(minish->envp, var, value);
 		add_env_back(&minish->envp, var, value);
 		free(var);
@@ -247,7 +252,7 @@ int is_valid_identifier(const char *str)
 			}
 			else if (ft_strchr(executables[index]->content, '=') != NULL)
 				edit_env(executables[index]->content, minish);
-			else if (get_VAR(&minish->envp, NULL, executables[index]->content) == -1)
+			else if (get_VAR(&minish->envp, NULL, executables[index]->content) == NULL)
 				add_env_back(&minish->envp, executables[index]->content, "");
 			index++;
 		}

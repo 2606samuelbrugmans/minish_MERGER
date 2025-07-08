@@ -134,6 +134,7 @@ size_t tab_size(char **tab);
 void free_tab(char **tab);
 char *ft_strjoinchar(char *str, char c);
 int count_redir(t_commands **cmd_as_token, t_token_type redir_type);
+int ft_is_number(const char *str);
 
 //init_env
 t_env	*set_envp(t_env **minish_env, char **envp);
@@ -171,8 +172,9 @@ void	child_process(t_minishell *minish, t_instructions *instr, int parser);
 void	execute(t_minishell *minish, t_instructions *instr, int parser);
 void close_parent(t_minishell *minish);
 void close_stuff(t_minishell *minish, int parser);
-void	error(t_minishell *minish, char *reason, int parser);
+void	error(t_minishell *minish, char *reason, char *specific, int exit_status);
 char	*path_finding(char *pathed, t_env **envp);
+void	Path_not_found(char *pcommand, t_minishell *minish);
 
 //access
 void 	access_test(t_minishell *minish, t_instructions *instr, int parser);
@@ -196,7 +198,7 @@ t_env *find_first(t_env *envp);
 void print_declare(t_env *envp);
 int edit_env(char *content, t_minishell *minish);
 int builtin_export(t_token **executables, t_minishell *minish);
-int builtin_exit(void);
+int builtin_exit(t_token **executables);
 int builtin_unset(t_token **executables, t_env **envp);
 
 ///////////////////////////////////////////////////////ENVIRONMENT///////////////////////////////////////////////////////
@@ -208,6 +210,15 @@ t_env *create_env_node(char *var, char *value);
 int add_env_back(t_env **env_list, char *var, char *value);
 char *join_var_value(char *var, char *value);
 char	**env_list_to_array(t_env *env, int len);
+int update_env_value(t_env *env_list, const char *var_name, const char *new_value);
+char    *get_path(char *command_to_path, char *paths, int index);
+int     path_len(char *string, int index);
+void    putcommand(char *command_to_path, char *potential_path, int size);
+
+//////signal
+void	setup_signals(void);
+void	sigquit_handler(int sig);
+void	sigint_handler(int sig);
 
 
 #endif

@@ -16,7 +16,6 @@ int treat_input(t_minishell **minish, char *input)
 {
 	t_commands *cmd_as_tokens;
 
-	set_up_signals(**minish);
 	if(!input || *input == '\0')
 		return(1);
 	if(!first_check(input))
@@ -61,11 +60,12 @@ int	main(int ac, char **av, char **envp)
 	char *input;
 
 	init_minish(&minish, envp);
+	setup_signals();
 	while(1)
 	{
 		prompt = get_prompt(&minish->envp);
 		if(!prompt)
-		break;
+			break;
 		input = readline(prompt);
 		free(prompt);
 		if(!input)
