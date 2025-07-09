@@ -56,7 +56,8 @@ t_env *find_first(t_env *envp)
 		}
 		envp = envp->next;
 	}
-	return (envp);
+
+	return (min);
 }
 int	is_between_env(t_env *envp, t_env *smallest, t_env *bigger)
 {

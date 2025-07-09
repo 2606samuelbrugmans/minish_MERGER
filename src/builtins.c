@@ -57,15 +57,13 @@ int built_in_parent(char *cmd)
 		ft_strcmp(cmd, "exit") == 0
 	);
 }
-int builtin_env(char **envp)
+int builtin_env(t_env *envp)
 {
-	int index;
-
-	index = 0;
-	while (envp[index] != NULL)
+	while (envp != NULL)
 	{
-		printf("%s\n", envp[index]);
-		index++;
+		if (envp->VAR && envp->value)
+			printf("%s=%s\n", envp->VAR, envp->value);
+		envp = envp->next;
 	}
 	return (0);
 }
@@ -83,7 +81,7 @@ int exec_builtin(t_token **executables, t_minishell *shell)
 	if (ft_strcmp(executables[0]->content, "unset") == 0 )
 		return builtin_unset(executables, &shell->envp);
 	if (ft_strcmp(executables[0]->content, "cd") == 0)
-		return builtin_cd(executables[1]->content, shell);
+		return builtin_cd(executables, shell);
 	if (ft_strcmp(executables[0]->content, "env") == 0)
 		return builtin_env(shell->envp);
 	if (ft_strcmp(executables[0]->content, "export") == 0)
@@ -157,37 +155,33 @@ int builtin_pwd(void)
 		perror("pwd");
 	return 0;
 }
-t_env *find_nth(t_env *smallest, t_env *bigger, t_env *envp)
+t_env *find_nth(t_env *smallest, t_env *envp)
 {
-	int has_changed;
+	t_env *bigger;
 
-	has_changed = -1;
+	bigger = NULL;
 	while (envp)
 	{
+		if (bigger == NULL && ft_strcmp(envp->VAR, smallest->VAR) > 0 )
+			bigger = envp;
 		if (is_between_env(envp, smallest, bigger) == 0)
 			bigger = envp;
 		envp = envp->next;
 	}
-	if (has_changed == -1)
-		return (NULL);
 	return (bigger);
 }
 
  void print_declare(t_env *envp)
  {
 	t_env	*smallest;
-	t_env	*bigger;
 
-	bigger = find_first(envp);
-	if (bigger == NULL)
+	smallest = find_first(envp);
+	if (smallest == NULL)
 		return ;
-	printf("declare -x %s%s\n", bigger->VAR, bigger->value);
-	smallest = bigger;
-	while (bigger != NULL)
+	while (smallest != NULL)
 	{
-		printf("declare -x %s=%s\n", bigger->VAR, bigger->value);
-		smallest = bigger;
-		bigger = find_nth(smallest, bigger, envp);
+		printf("declare -x %s=%s\n", smallest->VAR, smallest->value);
+		smallest = find_nth(smallest, envp);		
 	}
  }
 int edit_env(char *content, t_minishell *minish)

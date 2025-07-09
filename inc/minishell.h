@@ -184,19 +184,19 @@ int		heredoc_handle(char *stop);
 void no_redirection_proc(t_minishell *minish, t_instructions *instr, int parser);
 
 //builtins
+int is_n_flag(const char *str);
+int check_n_flags(t_token **argv);
 int is_builtin(char *cmd);
 int built_in_parent(char *cmd);
+int builtin_env(t_env *envp);
 int exec_builtin(t_token **executables, t_minishell *shell);
 int builtin_echo(t_token **executables);
-int	check_n_flags(t_token **argv);
-int is_n_flag(const char *str);
-int builtin_env(char **envp);
-int builtin_cd(char **argv, t_minishell *minish);
+int builtin_cd(t_token **executables, t_minishell *minish);
 int builtin_pwd(void);
-t_env *find_nth(t_env *smallest, t_env *bigger, t_env *envp);
-t_env *find_first(t_env *envp);
+t_env *find_nth(t_env *smallest, t_env *envp);
 void print_declare(t_env *envp);
 int edit_env(char *content, t_minishell *minish);
+int is_valid_identifier(const char *str);
 int builtin_export(t_token **executables, t_minishell *minish);
 int builtin_exit(t_token **executables);
 int builtin_unset(t_token **executables, t_env **envp);

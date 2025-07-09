@@ -25,23 +25,26 @@ int	run(t_minishell *minish)
 	}
 	return (0);
 }
-void	wait_exit(t_minishell *minish, pid_t last_pid)
+void	wait_exit(t_minishell *minish, pid_t	last_pid)
 {
-	int		status;
-	pid_t	pid;
+	int index;
+	pid_t wait_pid;
+	int status;
 
-	pid = wait(&status);
-	while (pid > 0)
+	index = 0;
+	while (index < minish->number_of_commands)
 	{
-		if (pid == last_pid)
+		wait_pid = wait(&status);
+		if (wait_pid == last_pid)
 		{
 			if (WIFEXITED(status))
-				minish->last_exit_status = WEXITSTATUS(status);
+				minish->last_exit_status = WEXITSTATUS(status);  
 			else if (WIFSIGNALED(status))
-				minish->last_exit_status = 128 + WTERMSIG(status);
+				minish->last_exit_status = 128 + WTERMSIG(status); 
 		}
-		pid = wait(&status);
+		index++;
 	}
+
 }
 void	process(t_minishell *minish)
 {
