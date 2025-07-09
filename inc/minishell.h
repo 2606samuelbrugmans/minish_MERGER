@@ -220,5 +220,7 @@ void	setup_signals(void);
 void	sigquit_handler(int sig);
 void	sigint_handler(int sig);
 
+///// tiny.c
+bool	is_env_char_end(char c);
 
 #endif

@@ -104,8 +104,8 @@ t_env *get_VAR(t_env **minish_envp, t_env **minish_local_var, char *VAR)
 	travel_var = *minish_envp;
 	while (travel_var)
 	{
-		if(ft_strncmp((travel_var)->VAR, VAR, ft_strlen(travel_var->VAR)) == 0)
-			return(travel_var);
+		if (ft_strcmp(travel_var->VAR, VAR) == 0)
+			return travel_var;
 		travel_var = travel_var->next;
 	}
 	if(minish_local_var != NULL && *minish_local_var != NULL)

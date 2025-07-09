@@ -23,6 +23,7 @@ int treat_input(t_minishell **minish, char *input)
 	if(add_loc_var(&(*minish)->envp,&(*minish)->local_var, input))
 		return(1);
 	(*minish)->parsed_string = get_new_string(**minish, input);
+	printf("parsed_string : |%s|\n", (*minish)->parsed_string);
 	if(!(*minish)->parsed_string)
 		return(0);		//handle error
 	cmd_as_tokens = tokenizer((*minish)->parsed_string);

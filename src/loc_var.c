@@ -112,6 +112,26 @@ int add_loc_var(t_env **minish_envp, t_env **minish_local_var, char *input)
 // 	return(1);
 // }
 
+char *dollar_interrogation(t_minishell minishell, char *string, size_t *str_ind, char *temp)
+{
+	char *exit_status_str;
+	char *renew_str;
+
+	if (string[*str_ind] == '?')
+	{
+		exit_status_str = ft_itoa(minishell.last_exit_status); // Convert int to string
+		if (!exit_status_str)
+			return (NULL); // malloc error
+
+		renew_str = ft_strjoin(temp, exit_status_str); // Append to temp
+		free(exit_status_str);
+		free(temp);
+		(*str_ind)++; // Skip the '?'
+		return (renew_str);
+	}
+	return NULL;
+}
+
 char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *temp)
 {
 	size_t len_var;
@@ -120,9 +140,10 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 	char *renew_str;
 
 	len_var = 0;
-	renew_str = NULL;
+	renew_str = ft_strdup("");
 	(*str_ind)++;
-	while(string[*str_ind + len_var] && string[*str_ind + len_var] != ' ' && string[*str_ind + len_var] != '\"')
+	renew_str = dollar_interrogation(minishell, string, str_ind, temp);
+	while(!is_env_char_end(string[*str_ind + len_var]))
 		len_var++;
 	pres_var = ft_substr(string, *str_ind, len_var);
 	if(!pres_var)
@@ -131,11 +152,18 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 	// printf("str[%zu] : |%c|\n", *str_ind, string[*str_ind]);
 	// printf("pres_var : %s\n", pres_var);
 	actual_var = get_VAR(&minishell.envp, &minishell.local_var, pres_var);
-	if(!actual_var || !actual_var->value)
-		renew_str = ft_strdup(temp);
-	else
+	renew_str = ft_strjoin(temp, renew_str);
+	if(actual_var && actual_var->value)
 		renew_str = ft_strjoin(temp, actual_var->value);
 	free(temp);
+	if (string[(*str_ind)] == '$' && string[(*str_ind) + 1] != '\0')
+	{
+		char *next_temp = ft_strdup(renew_str);
+		free(renew_str);
+		if (!next_temp)
+			return (NULL);
+		return replace_var(minishell, string, str_ind, next_temp);
+	}
 	return (renew_str);
 }
 
@@ -187,7 +215,7 @@ char	*get_new_string(t_minishell minishell, char *string)
 				str_ind++;
 			}
 		}
-		else if(string[str_ind] == '$')
+		else if (string[str_ind] == '$' && string[str_ind + 1] != '\0')
 		{
 			temp = new_str;
 			new_str = replace_var(minishell, string, &str_ind, temp);
