@@ -116,7 +116,8 @@ char *dollar_interrogation(t_minishell minishell, char *string, size_t *str_ind,
 {
 	char *exit_status_str;
 	char *renew_str;
-
+	
+	renew_str = ft_strdup("");
 	if (string[*str_ind] == '?')
 	{
 		exit_status_str = ft_itoa(minishell.last_exit_status); // Convert int to string
@@ -129,7 +130,7 @@ char *dollar_interrogation(t_minishell minishell, char *string, size_t *str_ind,
 		(*str_ind)++; // Skip the '?'
 		return (renew_str);
 	}
-	return NULL;
+	return (renew_str);
 }
 
 char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *temp)
@@ -193,10 +194,6 @@ char	*get_new_string(t_minishell minishell, char *string)
 		}
 		else if(string[str_ind] == '\'' && !in_double)
 		{
-			temp = new_str;
-			new_str = ft_strjoinchar(temp, string[str_ind]);
-			if(!new_str)
-				return(NULL);
 			str_ind++;
 			while(string[str_ind] && string[str_ind] != '\'')
 			{
@@ -207,13 +204,7 @@ char	*get_new_string(t_minishell minishell, char *string)
 				str_ind++;
 			}
 			if(string[str_ind])
-			{
-				temp = new_str;
-				new_str = ft_strjoinchar(temp, string[str_ind]);
-				if(!new_str)
-					return(NULL);
 				str_ind++;
-			}
 		}
 		else if (string[str_ind] == '$' && string[str_ind + 1] != '\0')
 		{

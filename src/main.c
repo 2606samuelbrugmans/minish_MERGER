@@ -22,11 +22,10 @@ int treat_input(t_minishell **minish, char *input)
 		return(3);
 	if(add_loc_var(&(*minish)->envp,&(*minish)->local_var, input))
 		return(1);
-	(*minish)->parsed_string = get_new_string(**minish, input);
-	printf("parsed_string : |%s|\n", (*minish)->parsed_string);
-	if(!(*minish)->parsed_string)
-		return(0);		//handle error
-	cmd_as_tokens = tokenizer((*minish)->parsed_string);
+	//(*minish)->parsed_string = get_new_string(**minish, input);
+	//if(!(*minish)->parsed_string)
+	//	return(0);		//handle error
+	cmd_as_tokens = tokenizer(input);
 	if(!cmd_as_tokens)
 		return(3);		//handle errors
 	(*minish)->number_of_commands = count_commands(cmd_as_tokens);

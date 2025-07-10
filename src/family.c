@@ -84,14 +84,14 @@ void	Path_not_found(char *pcommand, t_minishell *minish)
 }
 void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 {
+	printf("command: %s\n", instr->executable[0]->content);
 	if (is_builtin(instr->executable[0]->content))
-		instr->path_command = instr->executable[0]->content;
-	else if (access(instr->executable[0]->content, F_OK) == 0)		//should be X_OK no ? what if PATH is unset ?
 		instr->path_command = instr->executable[0]->content;
 	else
 		instr->path_command = path_finding(instr->executable[0]->content, &minish->envp);
 	if (instr->path_command == NULL)
 		Path_not_found(instr->executable[0]->content, minish);
+	printf("instr->path_command: %s\n", instr->path_command);
 	access_test(minish, instr, parser);
 	no_redirection_proc(minish, instr, parser);
 	if (is_builtin(instr->path_command))

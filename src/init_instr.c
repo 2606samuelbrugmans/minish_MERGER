@@ -50,7 +50,7 @@ size_t	tok_to_keep_tab_len(t_token **tokens)
 	to_keep = 0;
 	while (tokens[index])
 	{
-		if(tokens[index]->type == CMD || tokens[index]->type == ARG || tokens[index]->type == FLAG)
+		if(is_executable_token(tokens[index]->type))
 			to_keep++;
 		index ++;
 	}
@@ -72,10 +72,18 @@ char **tok_into_tab(t_token **tokens)
 		return (NULL);
 	while(tokens[i])
 	{
-		if(tokens[i]->type == CMD || tokens[i]->type == ARG || tokens[i]->type == FLAG)
+		if(is_executable_token(tokens[i]->type))
 		{
-			tab[index] = tokens[i]->content;
-			index ++;
+			if (tokens[i]->content && tokens[i]->content[0] != '\0') // Check if content is not empty
+			{
+				tab[index] = ft_strdup(tokens[i]->content);
+				if (!tab[index])
+				{
+					free_tab(tab); // Free previously allocated memory in case of error
+					return (NULL); // malloc error
+				}
+				index++;
+			}
 		}
 		i++;
 	}
@@ -153,7 +161,9 @@ t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens)
 {
 	size_t	index;
 	t_instructions *instru;
+	int 		count;
 
+	count = 0;
 	index = 0;
 	instru = malloc((minish->number_of_commands + 1) * sizeof(t_instructions));
 	if(!instru)
@@ -163,15 +173,31 @@ t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens)
 		ft_bzero(&instru[index], sizeof(t_instructions));
 		instru[index].command = ft_strdup(cmd_as_tokens->as_str);
 		instru[index].executable = cmd_as_tokens->args;
+		count = 0;
+		while (instru[index].executable[count] != NULL)
+		{
+			if(is_executable_token(instru[index].executable[count]->type))
+			{
+				if(!instru[index].executable[count]->content)
+					instru[index].executable[count]->content = ft_strdup("");
+				else
+					instru[index].executable[count]->content = get_new_string(*minish, instru[index].executable[count]->content);
+			}
+			printf("content : %s\n", instru[index].executable[count]->content);
+			printf("type : %d\n", instru[index].executable[count]->type);
+			count++;
+		}
 		instru[index].path_command = NULL;
 		instru[index].in_redir = NULL;
 		instru[index].out_redir = NULL;
 		if(!set_redir(&instru[index], cmd_as_tokens))
 			return(NULL);			//malloc error
+		write(2, "passed set redir \n", 19);
 		instru[index].exec = tok_into_tab(cmd_as_tokens->args);
 		if(!instru[index].exec)
 			return(NULL);			//malloc error
 		cmd_as_tokens = cmd_as_tokens->next_command;
+		write(2, "passed tok into tabs \n", 23);
 		index ++;
 	}
 	ft_bzero(&instru[index], sizeof(t_instructions));				//see if necessary and usable

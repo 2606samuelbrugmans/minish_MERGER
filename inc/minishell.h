@@ -222,5 +222,6 @@ void	sigint_handler(int sig);
 
 ///// tiny.c
 bool	is_env_char_end(char c);
+bool is_executable_token(t_token_type type);
 
 #endif

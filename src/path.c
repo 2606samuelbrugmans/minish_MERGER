@@ -29,6 +29,8 @@ char	*path_finding(char *pathed, t_env **envp)
 		return (NULL);		//not sure we need to protect here
 	// ft_putnbr_fd(path, 2);
 	full_path = get_path(pathed, path->value, 5);
+	if (full_path == pathed)		//if the path is not found, we return the original command
+		return (NULL);
 	return (full_path);
 }
 
@@ -94,8 +96,6 @@ int	find_string(char **env, char *path)
 char	*get_path(char *command_to_path, char *paths, int index)
 {
 	char	*full_path;
-
-
 
 	if (command_to_path == NULL || command_to_path[0] == 32)
 		return (NULL);

@@ -58,7 +58,7 @@ size_t next_arg_len(char *input, size_t input_index)
 	{
 		if(input[index] == '\'' || input[index] == '\"')
 		{
-			len += (end_quotes (input, &index) - 2);
+			len += (end_quotes (input, &index));
 		}
 		else if (input[index] == ' ' || (special_symb(input, index) != NONE))
 			break;
@@ -69,7 +69,7 @@ size_t next_arg_len(char *input, size_t input_index)
 		}
 	}
 	// printf("index after : %ld\n", index);
-	// printf("len : %ld\n", len);
+	printf("len : %ld\n", len);
 	// exit(1);
 	return (len);
 }
@@ -119,11 +119,15 @@ int	put_elem_in_tab(char **tab, size_t tab_index, char *input, size_t *input_ind
 		if(input[*input_index] == '\'' || input[*input_index] == '\"')
 		{
 			quote = input[*input_index];
+			elem[elem_index++] = quote;      //
 			(*input_index)++;
 			while(input[*input_index] && input[*input_index] != quote)
 				elem[elem_index++] = input[(*input_index)++];
 			if (input[*input_index] == quote)
+			{
+				elem[elem_index++] = quote; 
 				(*input_index) ++;
+			}		
 		}
 		else
 			elem[elem_index++] = input[(*input_index)++];
@@ -168,7 +172,7 @@ size_t nbr_of_elem(char *input)
 		}
 		if (input[index] || (index > 0 && input[index - 1] != ' ')) //checks if the line finishes with spaces or if we reached the end
 			nbr++;
-		// printf("nbr : %lu\n", nbr);
+		printf("nbr : %lu\n", nbr);
 	}
 	// exit(1);
 	return(nbr);
@@ -212,5 +216,11 @@ char **ft_split_shell(char *input)
 	//	 i++;
 	// }
 	// exit(1);
+	while (tab_of_elem[i])
+	{
+		printf("tab_of_elem[i] : %s\n", tab_of_elem[i]);
+		i++;
+	}
+	
 	return (tab_of_elem);
 }
