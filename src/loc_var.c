@@ -112,20 +112,21 @@ int add_loc_var(t_env **minish_envp, t_env **minish_local_var, char *input)
 // 	return(1);
 // }
 
-char *dollar_interrogation(t_minishell minishell, char *string, size_t *str_ind, char *temp)
+char *dollar_interrogation(t_minishell minishell, char *string, size_t **str_ind, char *temp)
 {
 	char *exit_status_str;
 	char *renew_str;
 	
 	renew_str = ft_strdup("");
 	exit_status_str = NULL;
-	if (string[*str_ind] == '?')
+	if (string[**str_ind] == '?')
 	{
 		exit_status_str = ft_itoa(minishell.last_exit_status); // Convert int to string
 		if (!exit_status_str)
 			return (NULL); // malloc error
 		renew_str = ft_strjoin(temp, exit_status_str); // Append to temp
 		free(exit_status_str);
+		(**str_ind)++; // Move index forward
 	}
 	/*
 	while (string[*str_ind] == '$' && (string[*str_ind + 1] == '\0') || string[*str_ind + 1] == '$')
@@ -152,7 +153,9 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 
 	len_var = 0;
 	(*str_ind)++;
-	renew_str = dollar_interrogation(minishell, string, str_ind, temp);
+	renew_str = dollar_interrogation(minishell, string, &str_ind, temp);
+	if (string[*str_ind - 1] == '?')
+		return (renew_str); // If ? found and treated return for nex
 	while(!is_env_char_end(string[*str_ind + len_var]))
 		len_var++;
 	pres_var = ft_substr(string, *str_ind, len_var);
@@ -162,7 +165,6 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 	// printf("str[%zu] : |%c|\n", *str_ind, string[*str_ind]);
 	// printf("pres_var : %s\n", pres_var);
 	actual_var = get_VAR(&minishell.envp, &minishell.local_var, pres_var);
-	renew_str = ft_strjoin(temp, renew_str);
 	if(actual_var && actual_var->value)
 		renew_str = ft_strjoin(temp, actual_var->value);
 	free(temp);
