@@ -13,16 +13,17 @@
 # include <sys/wait.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-#include <signal.h>
-#include <readline/readline.h>
-
+# include <signal.h>
+# include <termios.h>
 ///
 
 # define YES 1
 # define NOPE 0
 # define INVALID_ARG -1
 # define PATH_MAX 4096
-
+# ifndef ECHOCTL
+#  define ECHOCTL 0001000
+# endif
 typedef struct s_instructions   t_instructions;
 
 typedef enum e_token_type
@@ -219,6 +220,7 @@ void    putcommand(char *command_to_path, char *potential_path, int size);
 void	setup_signals(void);
 void	sigquit_handler(int sig);
 void	sigint_handler(int sig);
+void enable_echoctl(void);
 
 ///// tiny.c
 bool	is_env_char_end(char c);

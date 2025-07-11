@@ -52,6 +52,12 @@ void	init_minish(t_minishell **minish, char **envp)
 	if(!set_envp(&(*minish)->envp, envp))
 		exit_shell("Something went wrong while setting env\n", (*minish));
 }
+void debug_echoctl(const char *where)
+{
+	struct termios term;
+	tcgetattr(STDIN_FILENO, &term);
+	printf("[%s] ECHOCTL is %s\n", where, (term.c_lflag & ECHOCTL) ? "ON" : "OFF");
+}
 
 int	main(int ac, char **av, char **envp)
 {
@@ -66,7 +72,10 @@ int	main(int ac, char **av, char **envp)
 		prompt = get_prompt(&minish->envp);
 		if(!prompt)
 			break;
+		debug_echoctl("before readline");
 		input = readline(prompt);
+		debug_echoctl("after readline");
+		enable_echoctl();
 		free(prompt);
 		if(!input)
 			break;

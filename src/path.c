@@ -53,7 +53,7 @@ char	*potential_pathing(char *paths, char *command_to_path, int *index)
 	int		size;
 
 	size = path_len(paths, *index);
-	size += path_len(command_to_path, 0);
+	size += strlen(command_to_path);
 	potential_path = malloc((size + 2) * sizeof(char));
 	if (potential_path == NULL)
 		return (NULL);
@@ -102,6 +102,9 @@ char	*get_path(char *command_to_path, char *paths, int index)
 	while (paths[index] != '\0')
 	{
 		full_path = potential_pathing(paths, command_to_path, &index);
+		printf("full_path : %s\n", full_path);
+		printf("to_path : %s\n", command_to_path);
+
 		if (access(full_path, X_OK) == 0)
 			return (full_path);
 		if (full_path != NULL)
@@ -126,7 +129,7 @@ void	putcommand(char *command_to_path, char *potential_path, int size)
 	int	j;
 
 	j = 0;
-	while (command_to_path[j] != '\0' && command_to_path[j] != ' ')
+	while (command_to_path[j] != '\0')
 	{
 		potential_path[size + j] = command_to_path[j];
 		j++;

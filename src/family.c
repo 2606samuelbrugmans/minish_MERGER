@@ -54,6 +54,7 @@ void	process(t_minishell *minish)
 
 	last_pid = -1;
 	parser = 0;
+	signal(SIGINT, SIG_IGN);
 	while (parser < minish->number_of_commands)
 	{
 		forked = fork();
@@ -61,23 +62,24 @@ void	process(t_minishell *minish)
 			perror("couldn't fork");
 		else if (forked == 0)
 		{
-			signal(SIGINT, sigint_handler);
-    		signal(SIGQUIT, sigquit_handler);
+			signal(SIGINT, SIG_DFL);    
+			signal(SIGQUIT, SIG_DFL);   
 			child_process(minish, &minish->instru[parser], parser);
 		}
 		else if (parser == minish->number_of_commands - 1)
-			last_pid = forked; 
+			last_pid = forked;
 		parser++;
 	}
 	close_parent(minish);
 	wait_exit(minish, last_pid);
+	signal(SIGINT, sigint_handler);
 }
 void	Path_not_found(char *pcommand, t_minishell *minish)
 {
 
 	write(2, "bash: ", 6);
 	write(2, pcommand, ft_strlen(pcommand));
-	write(2, ": No such file or directory\n", 28); // this is the error message for a command not found
+	write(2, ": command not foundn\n", 22); // this is the error message for a command not found
 	free_minish(&minish);
 	close_parent(minish);
 	exit(127);
