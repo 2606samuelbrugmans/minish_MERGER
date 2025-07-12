@@ -6,7 +6,7 @@ int	run(t_minishell *minish)
 
 	i = 0;
 	if (built_in_parent(minish->instru[0].executable[0]->content) && minish->number_of_commands == 1)
-		minish->last_exit_status = exec_builtin(minish->instru[0].executable, minish);
+		minish->last_exit_status = exec_builtin(minish->instru[0].exec, minish);
 	else
 	{
 		// print_minishell(minish);
@@ -18,11 +18,7 @@ int	run(t_minishell *minish)
 		}
 		process(minish);
 	}
-	if (ft_strcmp(minish->instru[0].executable[0]->content, "exit") == 0 ) // if the user typed exit
-	{
-		free_minish(&minish);
-		exit(0);
-	}
+
 	return (0);
 }
 void	wait_exit(t_minishell *minish, pid_t	last_pid)
@@ -79,32 +75,39 @@ void	Path_not_found(char *pcommand, t_minishell *minish)
 
 	write(2, "bash: ", 6);
 	write(2, pcommand, ft_strlen(pcommand));
-	write(2, ": command not foundn\n", 22); // this is the error message for a command not found
-	free_minish(&minish);
+	write(2, ": command not found\n", 21); // this is the error message for a command not found
 	close_parent(minish);
+	free_minish_total(&minish);
 	exit(127);
 }
 void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 {
-	printf("command: %s\n", instr->executable[0]->content);
 	if (is_builtin(instr->executable[0]->content))
 		instr->path_command = instr->executable[0]->content;
 	else
 		instr->path_command = path_finding(instr->executable[0]->content, &minish->envp);
 	if (instr->path_command == NULL)
 		Path_not_found(instr->executable[0]->content, minish);
-	printf("instr->path_command: %s\n", instr->path_command);
 	access_test(minish, instr, parser);
 	no_redirection_proc(minish, instr, parser);
 	if (is_builtin(instr->path_command))
-		exec_builtin(instr->executable, minish); 
+		exec_builtin(instr->exec, minish); 
 	else
 		execute(minish, instr, parser);
 	close_stuff(minish, parser);
-	free_minish(&minish);
+	free_minish_total(&minish);
 	exit(0);
 }
-
+void	print_env_array(char **envp)
+{
+	int i = 0;
+	printf("\n printing the ARRAY:\n");
+	while (envp[i])
+	{
+		printf("  [%d]: %s\n", i, envp[i]);
+		i++;
+	}
+}
 void	execute(t_minishell *minish, t_instructions *instr, int parser)
 {
 	int execror;
@@ -116,6 +119,7 @@ void	execute(t_minishell *minish, t_instructions *instr, int parser)
 	if (valid_envp == NULL)
 		error(minish, "Failed to convert environment variables to array", NULL, 255);
 	write(2, "reached execution\n", 19); //see if still necessary
+	print_env_array(valid_envp);
 	execror = execve(instr->path_command, instr->exec, valid_envp);
 	if (execror == -1)
 		error(minish, "execution failed", NULL, 1);
@@ -156,7 +160,7 @@ void	error(t_minishell *minish, char *reason, char *specific, int exit_status)
 	index = 0;
 	ft_putstr_fd(specific, 2);
 	ft_putstr_fd(reason, 2);
-	free_minish(&minish);
+	free_minish_total(&minish);
 	exit(exit_status);
 }
 

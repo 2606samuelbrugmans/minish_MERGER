@@ -18,49 +18,56 @@ void	exit_shell(char *error_message, t_minishell *minish)
 	exit(1);
 }
 
-void	free_commands(t_commands *cmd)
+void	free_instructions(t_instructions *instru, int count)
 {
-	t_commands *current;
-	t_commands *next;
-	size_t		index;
+	int	i;
+	int	j;
 
-	current = cmd;
-	next = current->next_command;
-	while(current->next_command)
+	if (!instru)
+		return ;
+	i = 0;
+	while (i < count)
 	{
-		index = 0;
-		while(current->args[index] != NULL)
+		free_tokens(instru[i].executable);
+		free(instru[i].command);
+		free_redirs(instru[i].in_redir, instru[i].nb_files_in);
+		free_redirs(instru[i].out_redir, instru[i].nb_files_out);
+		if (instru[i].exec)
 		{
-			free(current->args[index]->content);
-			free(current->args[index]);
-			index ++;
+			j = 0;
+			while (instru[i].exec[j])
+			{
+				free(instru[i].exec[j]);
+				j++;
+			}
+			free(instru[i].exec);
 		}
-		free(current->args);
-		free(current->as_str);
-		current = next;
-		next = current->next_command;
+		free(instru[i].path_command);
+		i++;
 	}
+	free(instru);
 }
 
-void free_envp(t_env *env)
+void	free_minish_partial(t_minishell **minish)
 {
-	t_env *next;
-
-	while(env)
-	{
-		next = env->next;
-		free(env->VAR);
-		free(env->value);
-		free(env);
-		env = next;
-	}
+	if (!minish || !*minish)
+		return ;
+	free((*minish)->parsed_string);
+	if ((*minish)->fd_pipes)
+		free((*minish)->fd_pipes);
+	free_instructions((*minish)->instru, (*minish)->number_of_commands);
 }
 
-void free_minish(t_minishell **minish)
+void	free_minish_total(t_minishell **minish)
 {
-	if(!minish || !*minish)
-		return;
+	if (!minish || !*minish)
+		return ;
 	free_envp((*minish)->envp);
+	free_envp((*minish)->local_var);
+	free((*minish)->parsed_string);
+	if ((*minish)->fd_pipes)
+		free((*minish)->fd_pipes);
+	free_instructions((*minish)->instru, (*minish)->number_of_commands);
 	free(*minish);
-	// *minish = NULL; //??
+	*minish = NULL;
 }

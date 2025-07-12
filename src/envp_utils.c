@@ -167,12 +167,12 @@ char *join_var_value(char *var, char *value)
 	char *result;
 	size_t len;
 
-	len = strlen(var) + 1 + strlen(value) + 1;
+	len = ft_strlen(var) + 1 + ft_strlen(value) + 1;
 	result = malloc(sizeof(char) * len);
 	if (!result)
 		return (NULL);
-	ft_strlcpy(result, var, strlen(var));
-	ft_strlcat(result, "=", strlen(value) + 1);
+	ft_strlcpy(result, var, ft_strlen(var)+1);
+	ft_strlcat(result, "=", ft_strlen(var) + 2);
 	ft_strlcat(result, value, len);
 	return (result);
 }

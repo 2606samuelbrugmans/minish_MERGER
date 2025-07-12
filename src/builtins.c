@@ -19,14 +19,14 @@ int	is_n_flag(const char *str)
 	return (1);
 }
 
-int	check_n_flags(t_token **argv)
+int	check_n_flags(char **argv)
 {
 	int i;
 
 	i = 1;
 	while (argv[i] != NULL)
 	{
-		if (is_n_flag(argv[i]->content))
+		if (is_n_flag(argv[i]))
 			i++;
 		else
 			break;
@@ -62,34 +62,34 @@ int builtin_env(t_env *envp)
 	while (envp != NULL)
 	{
 		if (envp->VAR && envp->value)
-			printf("%s=%s\n", envp->VAR, envp->value);
+			ft_printf("%s=%s\n", envp->VAR, envp->value);
 		envp = envp->next;
 	}
 	return (0);
 }
-int exec_builtin(t_token **executables, t_minishell *shell)
+int exec_builtin(char **exec, t_minishell *shell)
 {
-
-	if (!is_builtin(executables[0]->content))
+	if (!is_builtin(exec[0]))
 		return (-1);
-	if (ft_strcmp(executables[0]->content, "echo") == 0)
-		return builtin_echo(executables);
-	if (ft_strcmp(executables[0]->content, "pwd") == 0)
+
+	if (ft_strcmp(exec[0], "echo") == 0)
+		return builtin_echo(exec);
+	if (ft_strcmp(exec[0], "pwd") == 0)
 		return builtin_pwd();
-	if (ft_strcmp(executables[0]->content, "exit") == 0 )
-		return builtin_exit(executables);
-	if (ft_strcmp(executables[0]->content, "unset") == 0 )
-		return builtin_unset(executables, &shell->envp);
-	if (ft_strcmp(executables[0]->content, "cd") == 0)
-		return builtin_cd(executables, shell);
-	if (ft_strcmp(executables[0]->content, "env") == 0)
+	if (ft_strcmp(exec[0], "exit") == 0)
+		builtin_exit(exec);
+	if (ft_strcmp(exec[0], "unset") == 0)
+		return builtin_unset(exec, &shell->envp);
+	if (ft_strcmp(exec[0], "cd") == 0)
+		return builtin_cd(exec, shell);
+	if (ft_strcmp(exec[0], "env") == 0)
 		return builtin_env(shell->envp);
-	if (ft_strcmp(executables[0]->content, "export") == 0)
-		return builtin_export(executables, shell);
+	if (ft_strcmp(exec[0], "export") == 0)
+		return builtin_export(exec, shell);
 
 	return (-1);
 }
-int builtin_echo(t_token **executables)
+int builtin_echo(char **executables)
 {
 	int i;
 	int j;
@@ -103,17 +103,17 @@ int builtin_echo(t_token **executables)
 		newline = 0;
 	while (executables[i])
 	{
-		printf("%s", executables[i]->content);
+		ft_printf("%s", executables[i]);
 		if (executables[i + 1])
-			printf(" ");
+			ft_printf(" ");
 		i++;
 	}
 	if (newline)
-		printf("\n");
+		ft_printf("\n");
 	return (0);
 }
 
-int builtin_cd(t_token **executables, t_minishell *minish)
+int builtin_cd(char **executables, t_minishell *minish)
 {
 	t_env *home_var;
 	char *path;
@@ -124,7 +124,7 @@ int builtin_cd(t_token **executables, t_minishell *minish)
 		if (home_var == NULL)
 		{
 			write(2, "bash: cd: HOME not set\n", 23);
-			return (0);
+			return (1);
 		}
 		else if (chdir(home_var->value) != 0)
 		{
@@ -133,16 +133,18 @@ int builtin_cd(t_token **executables, t_minishell *minish)
 		}
 	}
 	else
-		path = executables[1]->content;
-	if (executables[2])
-		write(2, "bash: cd: too many arguments", 29);
-	else if (chdir(path) != 0)
 	{
-		perror("cd");
-		return 1;
+		path = executables[1];
+		if (executables[2])
+			write(2, "bash: cd: too many arguments", 29);
+		else if (chdir(path) != 0)
+		{
+			perror("cd");
+			return 1;
+		}
+		else 
+			return 0;
 	}
-	else 
-		return 0;
 	return 1;
 }
 int builtin_pwd(void)
@@ -227,7 +229,7 @@ int is_valid_identifier(const char *str)
 
     return 1;
 }
- int builtin_export(t_token **executables, t_minishell *minish)
+ int builtin_export(char **executables, t_minishell *minish)
  {
 	int index;
 
@@ -238,56 +240,56 @@ int is_valid_identifier(const char *str)
 	{
 		while (executables[index])
 		{
-			if (!is_valid_identifier(executables[index]->content))
+			if (!is_valid_identifier(executables[index]))
 			{
 				write(2, "bash: export: `", 15);
-				write(2, executables[index]->content, ft_strlen(executables[index]->content));
+				write(2, executables[index], ft_strlen(executables[index]));
 				write(2, "': not a valid identifier\n", 27);
 			}
-			else if (ft_strchr(executables[index]->content, '=') != NULL)
-				edit_env(executables[index]->content, minish);
-			else if (get_VAR(&minish->envp, NULL, executables[index]->content) == NULL)
-				add_env_back(&minish->envp, executables[index]->content, "");
+			else if (ft_strchr(executables[index], '=') != NULL)
+				edit_env(executables[index], minish);
+			else if (get_VAR(&minish->envp, NULL, executables[index]) == NULL)
+				add_env_back(&minish->envp, executables[index], "");
 			index++;
 		}
 	}
 	return (0);
  }
 
-int builtin_exit(t_token **executables)
+void builtin_exit(char **executables)
 {
 	int exit_status;
 
 	if (executables[1] == NULL)
-		return (0);
+		exit_status = (0);
 	else if (executables[2] != NULL)
 	{
 		write(2, "bash: exit: too many arguments\n", 31);
-		return (2);
+		exit_status = (2);
 	}
-	else if (ft_is_number(executables[1]->content) == 0)
+	else if (ft_is_number(executables[1]) == 0)
 	{
 		write(2, "bash: exit: ", 12);
-		write(2, executables[1]->content, ft_strlen(executables[1]->content));
+		write(2, executables[1], ft_strlen(executables[1]));
 		write(2, ": numeric argument required\n", 28);
 		exit_status = 255;
 	}
 	else
 	{
-		exit_status = atoi(executables[1]->content);
+		exit_status = ft_atoi(executables[1]);
 		if (exit_status < 0 || exit_status > 255)
 			exit_status = exit_status % 256;
 	}
-	printf("exit %d\n", exit_status);
-	return (exit_status);
+	ft_printf("exit %d\n", exit_status);
+	exit(exit_status);
 }
 
- int builtin_unset(t_token **executables, t_env **envp)
+ int builtin_unset(char **executables, t_env **envp)
  {
 	int i = 1;
 	while (executables[i])
 	{
-		remove_env_var(envp, executables[i]->content);
+		remove_env_var(envp, executables[i]);
 		i++;
 	}
 	return (0);

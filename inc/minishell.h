@@ -3,6 +3,7 @@
 # define MINISHELL_H
 
 # include "../Libft/inc/libft.h"
+# include "../Libft/inc/ft_printf.h"
 # include <stdbool.h>
 # include <limits.h>
 # include <unistd.h>
@@ -157,13 +158,17 @@ t_redir  *add_redir(t_redir *redir_list, t_token_type type, char *file, size_t *
 int	count_commands(t_commands *cmd_as_token);
 char **tok_into_tab(t_token **tokens);
 size_t	tok_to_keep_tab_len(t_token **tokens);
+t_token **init_executable(t_token **cmd_as_tokens, 	t_instructions *instru, int index, t_minishell *minish);
 
 //free everything
 void	exit_shell(char *error_message, t_minishell *minish);
-void free_minish(t_minishell **minish);
-void free_envp(t_env *env);
-
-
+void	free_instructions(t_instructions *instru, int count);
+void	free_minish_partial(t_minishell **minish);
+void	free_minish_total(t_minishell **minish);
+void	free_tokens(t_token **tokens);
+void	free_redirs(t_redir *redir, int count);
+void	free_commands(t_commands *cmd);
+void	free_envp(t_env *env);
 ///////////////////////////////////////////////////////EXECUTION///////////////////////////////////////////////////////
 
 //family
@@ -186,21 +191,24 @@ void no_redirection_proc(t_minishell *minish, t_instructions *instr, int parser)
 
 //builtins
 int is_n_flag(const char *str);
-int check_n_flags(t_token **argv);
+int check_n_flags(char **argv);
 int is_builtin(char *cmd);
 int built_in_parent(char *cmd);
 int builtin_env(t_env *envp);
-int exec_builtin(t_token **executables, t_minishell *shell);
-int builtin_echo(t_token **executables);
-int builtin_cd(t_token **executables, t_minishell *minish);
+int exec_builtin(char **executables, t_minishell *shell);
+int builtin_echo(char **executables);
+int builtin_cd(char **executables, t_minishell *minish);
 int builtin_pwd(void);
 t_env *find_nth(t_env *smallest, t_env *envp);
 void print_declare(t_env *envp);
 int edit_env(char *content, t_minishell *minish);
 int is_valid_identifier(const char *str);
-int builtin_export(t_token **executables, t_minishell *minish);
-int builtin_exit(t_token **executables);
-int builtin_unset(t_token **executables, t_env **envp);
+int builtin_export(char **executables, t_minishell *minish);
+void builtin_exit(char **executables);
+int builtin_unset(char **executables, t_env **envp);
+
+
+void	print_env_array(char **envp);
 
 ///////////////////////////////////////////////////////ENVIRONMENT///////////////////////////////////////////////////////
 int env_list_length(t_env *traveler);
@@ -215,6 +223,7 @@ int update_env_value(t_env *env_list, const char *var_name, const char *new_valu
 char    *get_path(char *command_to_path, char *paths, int index);
 int     path_len(char *string, int index);
 void    putcommand(char *command_to_path, char *potential_path, int size);
+int update_SHLVL(t_env **next_envv);
 
 //////signal
 void	setup_signals(void);
