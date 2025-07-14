@@ -17,6 +17,5 @@ t_token **init_executable(t_token **cmd_as_tokens, t_instructions *instru, int i
 		}
 		count++;
 	}
-	write(2, "seg_Fault? : \n", 15);
 	return (instru[index].executable);
 }

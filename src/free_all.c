@@ -55,19 +55,18 @@ void	free_minish_partial(t_minishell **minish)
 	free((*minish)->parsed_string);
 	if ((*minish)->fd_pipes)
 		free((*minish)->fd_pipes);
-	free_instructions((*minish)->instru, (*minish)->number_of_commands);
+	if ((*minish)->instru)
+		free_instructions((*minish)->instru, (*minish)->number_of_commands);
 }
 
 void	free_minish_total(t_minishell **minish)
 {
 	if (!minish || !*minish)
 		return ;
-	free_envp((*minish)->envp);
-	free_envp((*minish)->local_var);
-	free((*minish)->parsed_string);
-	if ((*minish)->fd_pipes)
-		free((*minish)->fd_pipes);
-	free_instructions((*minish)->instru, (*minish)->number_of_commands);
-	free(*minish);
+	if ((*minish)->envp)
+		free_envp((*minish)->envp);
+	if ((*minish)->local_var)
+		free_envp((*minish)->local_var);
+	free_minish_partial(minish);
 	*minish = NULL;
 }

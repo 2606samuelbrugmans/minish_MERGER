@@ -42,11 +42,7 @@ int treat_input(t_minishell **minish, char *input)
 
 void	init_minish(t_minishell **minish, char **envp)
 {
-	char *shlvl[3];
-
-	shlvl[0] = "export";
-	shlvl[1] = "SHLVL=1";
-	shlvl[2] = NULL;
+	
 	(*minish) = malloc(1 * sizeof(t_minishell));
 	(*minish)->envp = NULL;
 	(*minish)->local_var = NULL;
@@ -65,7 +61,6 @@ int	main(int ac, char **av, char **envp)
 	char *prompt;
 	char *input;
 
-	print_env_array(envp);
 	init_minish(&minish, envp);
 	setup_signals();
 	while(1)

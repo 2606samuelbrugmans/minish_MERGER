@@ -1,3 +1,10 @@
-ds
-ds
-aez
+echo
+inc
+Libft
+lol
+lolol
+Makefile
+minishell
+no
+outfile
+src

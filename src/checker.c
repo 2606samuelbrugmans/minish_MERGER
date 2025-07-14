@@ -26,14 +26,14 @@ int first_check(char *input)
 
 	if (unclosed_quotes(input))
 	{
-		printf("Syntax error: Unclosed quotes.\n");
+		write(2, "Syntax error: Unclosed quotes.\n", 32);
 		return(0);
 	}
 	while(input[index] == ' ')
 		index ++;
 	if(input[index] == '|')
 	{
-		printf("Syntax error near unexpected token `|'\n");
+		write(2, "Syntax error near unexpected token `|'\n", 40);
 		return(0);
 	}
 	//not sure about this check
@@ -41,7 +41,7 @@ int first_check(char *input)
 	{
 		if((unsigned char)input[index] < 32 && input[index] != '\t' && input[index] != '\n')
 		{
-			printf("Syntax error: Unescaped character: ASCII %d\n", input[index]);
+			ft_printf("Syntax error: Unescaped character: ASCII %d\n", input[index]);
 			return(0);
 		}
 		index ++;

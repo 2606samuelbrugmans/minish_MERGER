@@ -24,7 +24,6 @@ char	*path_finding(char *pathed, t_env **envp)
 		else
 			return (NULL);
 	}
-	printf("pathed : %s\n", pathed);
 	path = get_VAR(envp, NULL, "PATH");
 	if (path == NULL)
 		return (NULL);		//not sure we need to protect here

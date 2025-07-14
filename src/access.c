@@ -109,7 +109,6 @@ void access_test(t_minishell *minish, t_instructions *instr, int parser)
 void no_redirection_proc(t_minishell *minish, t_instructions *instr, int parser)
 {
 	// Debug: print nb_files_in
-	printf("[DEBUG] nb_files_in = %d\n", instr->nb_files_in);
 	//STDIN
 	if (instr->nb_files_in > 0)
 		dup2(instr->pipe[0], STDIN_FILENO);

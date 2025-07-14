@@ -82,12 +82,12 @@ void	Path_not_found(char *pcommand, t_minishell *minish)
 }
 void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 {
-	if (is_builtin(instr->executable[0]->content))
-		instr->path_command = instr->executable[0]->content;
+	if (is_builtin(instr->exec[0]))
+		instr->path_command = instr->exec[0];
 	else
-		instr->path_command = path_finding(instr->executable[0]->content, &minish->envp);
+		instr->path_command = path_finding(instr->exec[0], &minish->envp);
 	if (instr->path_command == NULL)
-		Path_not_found(instr->executable[0]->content, minish);
+		Path_not_found(instr->exec[0], minish);
 	access_test(minish, instr, parser);
 	no_redirection_proc(minish, instr, parser);
 	if (is_builtin(instr->path_command))
@@ -118,8 +118,6 @@ void	execute(t_minishell *minish, t_instructions *instr, int parser)
 	valid_envp = env_list_to_array(minish->envp, len);
 	if (valid_envp == NULL)
 		error(minish, "Failed to convert environment variables to array", NULL, 255);
-	write(2, "reached execution\n", 19); //see if still necessary
-	print_env_array(valid_envp);
 	execror = execve(instr->path_command, instr->exec, valid_envp);
 	if (execror == -1)
 		error(minish, "execution failed", NULL, 1);

@@ -1,0 +1,21 @@
+CC = cc
+SRCS = $(wildcard src/*.c) \
+		# family.c \
+		# main.c \
+		# lidl_function.c \
+		# not_so_lidl.c \
+		# pipes.c \
+		# basic.c \
+		# path.c \
+		# basic2.c \
+		# debug_shit.c
+INC = inc
+OBJ = $(SRCS:.c=.o)
+%.o : %.c
+	${CC} -I${INC} -c -o $@ $<
+	@make clean -C ./Libft
+fclean: clean
+	@make fclean -C ./Libft
+re: fclean all
+# Mark these as not actual files
+.PHONY: fclean clean all re
