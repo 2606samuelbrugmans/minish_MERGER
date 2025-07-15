@@ -72,7 +72,7 @@ char **tok_into_tab(t_token **tokens)
 		return (NULL);
 	while(tokens[i])
 	{
-		printf("tok_into_tab: %s type %d\n", tokens[i]->content, tokens[i]->type);
+		// printf("tok_into_tab: %s type %d\n", tokens[i]->content, tokens[i]->type);
 		if(is_executable_token(tokens[i]->type))
 		{
 			if (tokens[i]->content && tokens[i]->content[0] != '\0') // Check if content is not empty
@@ -180,7 +180,7 @@ t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens)
 		if(!instru[index].exec)
 			return(NULL);			//malloc error
 		instru[index].command = instru[index].exec[0];
-		printf("init_instr: command = %s\n", instru[index].exec[0]);
+		// printf("init_instr: command = %s\n", instru[index].exec[0]);
 
 		cmd_as_tokens = cmd_as_tokens->next_command;
 		index ++;

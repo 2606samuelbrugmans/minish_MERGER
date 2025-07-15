@@ -141,8 +141,8 @@ char *ft_strjoinchar(char *str, char c)
 	temp[0] = c;
 	temp[1] = '\0';
 	new_str = ft_strjoin(str, temp);
-	// if(str)
-	//	 free(str);
+	if (!new_str)
+		return( NULL);
 	return(new_str);
 }
 

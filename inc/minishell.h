@@ -92,11 +92,11 @@ typedef struct t_minishell
 {
 	t_env *envp;
 	t_env *local_var;
-	int		last_exit_status;
+	char	*parsed_string;
 	t_instructions *instru;
 	int		number_of_commands;
 	int		(*fd_pipes)[2];
-	char	*parsed_string;
+	int		last_exit_status;
 } 	t_minishell;
 
 ///////////////////////////////////////////////////////PARSING///////////////////////////////////////////////////////
@@ -151,6 +151,9 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 char *get_new_string(t_minishell minishell, char *string);
 int add_loc_var(t_env **minish_envp, t_env **minish_local_var, char *input);
 bool is_expandable_dollar(const char *string, int str_ind, bool in_double);
+void	append_char(char **dest, char c);
+void	handle_single_quote(char **dest, const char *str, size_t *i);
+void	handle_expand(char **dest, t_minishell ms, const char *str, size_t *i);
 
 //init_instr
 t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens);
@@ -162,7 +165,7 @@ size_t	tok_to_keep_tab_len(t_token **tokens);
 t_token **init_executable(t_token **cmd_as_tokens, 	t_instructions *instru, int index, t_minishell *minish);
 
 //free everything
-void	exit_shell(char *error_message, t_minishell *minish);
+void	exit_shell(char *error_message, t_minishell **minish);
 void	free_instructions(t_instructions *instru, int count);
 void	free_minish_partial(t_minishell **minish);
 void	free_minish_total(t_minishell **minish);

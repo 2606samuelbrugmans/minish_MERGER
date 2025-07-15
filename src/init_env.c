@@ -16,8 +16,8 @@ int update_SHLVL(t_env **env)
 	char *new_value;
 	int level;
 
-	ft_printf(" Updating SHLVL...\n");
-	if (!(*env)->value)
+	// ft_printf(" Updating SHLVL...\n");
+	if (!(*env)->value)		//steff it could be exported without value and it's standard behaviro to reset it
 		level = 0;
 	else
 		level = ft_atoi((*env)->value);
@@ -26,12 +26,13 @@ int update_SHLVL(t_env **env)
 	else if (level > 1000)
 		level = 999; // cap SHLVL to 1000
 	level++;
-	printf("level : %d", level);
-	printf("env-> var ; %s env> value; %s", (*env)->VAR, (*env)->value );
+	// printf("level : %d", level);
+	// printf("env-> var ; %s env> value; %s", (*env)->VAR, (*env)->value );
 	new_value = ft_itoa(level);
 	if (!new_value)
 		return (0); // handle error
-	free(((*env))->value);
+	if((*env)->value);
+		free(((*env))->value);
 	(*env)->value = new_value;
 	return (1);
 }
@@ -41,7 +42,9 @@ int	set_next_var(t_env **next_envv, char *envv, char *equal)
 {
 	if(!envv)		//check if works with VAR=	  like an empty value
 		return(0);
-	*next_envv = malloc(sizeof(t_env));								//need to free at the end
+	*next_envv = malloc(sizeof(t_env));
+	(*next_envv)->VAR = NULL;
+	(*next_envv)->value = NULL;
 	if(!*next_envv)
 		return(0);
 	(*next_envv)->VAR = ft_substr(envv, 0, equal - envv);
@@ -50,9 +53,12 @@ int	set_next_var(t_env **next_envv, char *envv, char *equal)
 	(*next_envv)->value = ft_strdup(equal + 1);
 	if (ft_strcmp((*next_envv)->VAR, "SHLVL") == 0)
 		return (update_SHLVL(next_envv));	//update SHLVL if it is set
+	////////////////////////////////////////
+	//need to return 0 if strdup of (*next_envv)>value missed and free before it
+	////////////////////////////////////////
 	if (!(*next_envv)->value)
 	{
-		free((*next_envv)->value);
+		free((*next_envv)->VAR);
 		free(*next_envv);
 		return(0);					//handle errors
 	}
@@ -90,7 +96,7 @@ t_env	*set_envp(t_env **minish_env, char **envp)
 	}
 	if (current_envv)
 		current_envv->next = NULL;
-	printf("[DEBUG] Environment setup completed.\n");
+	// printf("[DEBUG] Environment setup completed.\n");
 	return(*minish_env);
 }
 

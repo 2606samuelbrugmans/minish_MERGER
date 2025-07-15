@@ -1,13 +1,13 @@
 /* ************************************************************************** */
-/*																			*/
-/*														:::	  ::::::::   */
-/*   main.c											 :+:	  :+:	:+:   */
-/*													+:+ +:+		 +:+	 */
-/*   By: scesar <scesar@student.42.fr>			  +#+  +:+	   +#+		*/
-/*												+#+#+#+#+#+   +#+		   */
-/*   Created: 2025/06/17 17:03:54 by scesar			#+#	#+#			 */
-/*   Updated: 2025/06/25 12:38:17 by scesar		   ###   ########.fr	   */
-/*																			*/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: scesar <scesar@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/15 14:45:43 by scesar            #+#    #+#             */
+/*   Updated: 2025/07/15 15:16:39 by scesar           ###   ########.fr       */
+/*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
@@ -22,9 +22,6 @@ int treat_input(t_minishell **minish, char *input)
 		return(3);
 	if(add_loc_var(&(*minish)->envp,&(*minish)->local_var, input))
 		return(1);
-	//(*minish)->parsed_string = get_new_string(**minish, input);
-	//if(!(*minish)->parsed_string)
-	//	return(0);		//handle error
 	cmd_as_tokens = tokenizer(input);
 	if(!cmd_as_tokens)
 		return(3);		//handle errors
@@ -42,16 +39,33 @@ int treat_input(t_minishell **minish, char *input)
 
 void	init_minish(t_minishell **minish, char **envp)
 {
-	
-	(*minish) = malloc(1 * sizeof(t_minishell));
+	char *SHLVL[3];
+
+	SHLVL[0] = "export";
+	SHLVL[1] = "SHLVL=1";
+	SHLVL[2] = NULL;
+	(*minish) = malloc(1 * sizeof(t_minishell));		//were should this be free ?
+	if (!(*minish))
+		exit_shell("Something went wrong while initializing minish\n", NULL);
 	(*minish)->envp = NULL;
 	(*minish)->local_var = NULL;
+	(*minish)->parsed_string = NULL;
+	(*minish)->instru = NULL;
+	(*minish)->number_of_commands = 0;
+	(*minish)->fd_pipes = NULL;
+	(*minish)->last_exit_status = 0;
+	(*minish)->envp = NULL;
+	(*minish)->local_var = NULL;
+	(*minish)->parsed_string = NULL;
 	(*minish)->instru = NULL;
 	(*minish)->number_of_commands = 0;
 	(*minish)->fd_pipes = NULL;
 	(*minish)->last_exit_status = 0;
 	if(!set_envp(&(*minish)->envp, envp))
-		exit_shell("Something went wrong while setting env\n", (*minish));
+		exit_shell("Something went wrong while setting env\n", minish);
+	if (get_VAR(&(*minish)->envp, &(*minish)->local_var, "SHLVL") == NULL)
+		exec_builtin(SHLVL, (*minish));
+	// standard behavior is to reset SHLVL to 1 if not set
 }
 
 
@@ -73,8 +87,8 @@ int	main(int ac, char **av, char **envp)
 		free(prompt);
 		if(!input)
 			break;
-		if (input && *input) 
-    		add_history(input);		
+		if (input && *input)
+    		add_history(input);
 		if (treat_input(&minish, input) == 3)
 			minish->last_exit_status = 2;
 		free(input);

@@ -1,13 +1,13 @@
 /* ************************************************************************** */
-/*																			*/
-/*														:::	  ::::::::   */
-/*   prompt.c										   :+:	  :+:	:+:   */
-/*													+:+ +:+		 +:+	 */
-/*   By: scesar <scesar@student.42.fr>			  +#+  +:+	   +#+		*/
-/*												+#+#+#+#+#+   +#+		   */
-/*   Created: 2025/06/20 13:16:28 by scesar			#+#	#+#			 */
-/*   Updated: 2025/06/20 13:17:24 by scesar		   ###   ########.fr	   */
-/*																			*/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   prompt.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: scesar <scesar@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/15 17:45:41 by scesar            #+#    #+#             */
+/*   Updated: 2025/07/15 17:45:44 by scesar           ###   ########.fr       */
+/*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
@@ -46,23 +46,21 @@ char *get_prompt(t_env **envp)
 	char *temp;
 	char *path;
 
-	prompt = NULL;
 	user_var = get_VAR(envp, NULL, "USER");
 	if(!user_var || !user_var->value)
 		return(NULL);			//handle error ?
-	user = ft_strjoinchar(user_var->value, ':');
-	if(!user)
+	if(!user_var || !user_var->value)
 		user = ft_strdup("user :");
+	else
+		user = ft_strjoinchar(user_var->value, ':');
 	if(!user)
-		return(NULL);
+		return(NULL);		//malloc error
 	path = get_curr_path(envp);
 	if(!path)
-		return(NULL);		//malloc error;
+		return(free(user), NULL);		//malloc error;
 	temp = ft_strjoin("minishell@", user);
-	free(user);
 	if(!temp)
-		return(NULL);		//malloc error;
+		return(free(user),free(path),NULL);		//malloc error;
 	prompt = ft_strjoin(temp, path);
-	free(temp);
-	return(prompt);
+	return(free(user), free(temp),free(path), prompt);
 }

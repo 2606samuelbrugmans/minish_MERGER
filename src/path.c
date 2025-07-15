@@ -6,7 +6,7 @@
 /*   By: scesar <scesar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 16:01:27 by scesar            #+#    #+#             */
-/*   Updated: 2025/07/01 21:08:10 by scesar           ###   ########.fr       */
+/*   Updated: 2025/07/15 14:16:26 by scesar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,8 +102,8 @@ char	*get_path(char *command_to_path, char *paths, int index)
 	while (paths[index] != '\0')
 	{
 		full_path = potential_pathing(paths, command_to_path, &index);
-		printf("full_path : %s\n", full_path);
-		printf("to_path : %s\n", command_to_path);
+		// printf("full_path : %s\n", full_path);
+		// printf("to_path : %s\n", command_to_path);
 
 		if (access(full_path, X_OK) == 0)
 			return (full_path);
