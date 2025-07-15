@@ -118,6 +118,8 @@ char *dollar_interrogation(t_minishell minishell, char *string, size_t **str_ind
 	char *renew_str;
 	
 	renew_str = ft_strdup("");
+	if (!renew_str)
+		return (NULL);
 	exit_status_str = NULL;
 	if (string[**str_ind] == '?')
 	{
@@ -128,19 +130,7 @@ char *dollar_interrogation(t_minishell minishell, char *string, size_t **str_ind
 		free(exit_status_str);
 		(**str_ind)++; // Move index forward
 	}
-	/*
-	while (string[*str_ind] == '$' && (string[*str_ind + 1] == '\0') || string[*str_ind + 1] == '$')
-	{
-		printf("hmm %c", string[*str_ind + 1] == '\0');
-		temp = ft_strjoinchar(temp, string[*str_ind]);
-		(*str_ind)++; 
-	}
-	renew_str = ft_strdup(temp);
-	if (!renew_str)
-		return (NULL); // malloc error
-	free(exit_status_str);
-	free(temp);
-	*/
+
 	return (renew_str);
 }
 
@@ -150,10 +140,13 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 	t_env *actual_var;
 	char *pres_var;
 	char *renew_str;
+	char *next_temp;
 
 	len_var = 0;
 	(*str_ind)++;
 	renew_str = dollar_interrogation(minishell, string, &str_ind, temp);
+	if (renew_str == NULL)
+		return (NULL); // malloc error
 	if (string[*str_ind - 1] == '?')
 		return (renew_str); // If ? found and treated return for nex
 	while(!is_env_char_end(string[*str_ind + len_var]))
@@ -165,15 +158,17 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 	// printf("str[%zu] : |%c|\n", *str_ind, string[*str_ind]);
 	// printf("pres_var : %s\n", pres_var);
 	actual_var = get_VAR(&minishell.envp, &minishell.local_var, pres_var);
-	if(actual_var && actual_var->value)
+	if(actual_var)
 		renew_str = ft_strjoin(temp, actual_var->value);
+	else 
+		return (temp); // If variable not found, return the original string
 	free(temp);
 	if (string[(*str_ind)] == '$' && (string[(*str_ind) + 1] != '\0') && string[(*str_ind) + 1] != '$')
 	{
-		char *next_temp = ft_strdup(renew_str);
+		next_temp = ft_strdup(renew_str);
 		free(renew_str);
 		if (!next_temp)
-			return (NULL);
+			return (free(pres_var), NULL); // malloc error
 		return (replace_var(minishell, string, str_ind, next_temp));
 	}
 	return (renew_str);
@@ -234,7 +229,6 @@ char	*get_new_string(t_minishell minishell, char *string)
 			str_ind++;
 		}
 	}
-	printf("new_str : .%s.\n", new_str);
 	return(new_str);
 }
 
