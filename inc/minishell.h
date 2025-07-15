@@ -150,6 +150,7 @@ char *fill_renew_str(char *last_str, size_t last_str_ind, size_t len_var, t_env 
 char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *temp);
 char *get_new_string(t_minishell minishell, char *string);
 int add_loc_var(t_env **minish_envp, t_env **minish_local_var, char *input);
+bool is_expandable_dollar(const char *string, int str_ind, bool in_double);
 
 //init_instr
 t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens);

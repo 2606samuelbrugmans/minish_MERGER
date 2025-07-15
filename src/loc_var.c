@@ -163,14 +163,6 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 	else 
 		return (temp); // If variable not found, return the original string
 	free(temp);
-	if (string[(*str_ind)] == '$' && (string[(*str_ind) + 1] != '\0') && string[(*str_ind) + 1] != '$')
-	{
-		next_temp = ft_strdup(renew_str);
-		free(renew_str);
-		if (!next_temp)
-			return (free(pres_var), NULL); // malloc error
-		return (replace_var(minishell, string, str_ind, next_temp));
-	}
 	return (renew_str);
 }
 
@@ -193,10 +185,7 @@ char	*get_new_string(t_minishell minishell, char *string)
 		temp = ft_strdup("");
 		if(string[str_ind] == '\"')
 		{
-			if(in_double == false)
-				in_double = true;
-			else
-				in_double = false;
+			in_double = !in_double;
 			str_ind++;
 		}
 		else if(string[str_ind] == '\'' && !in_double)
@@ -213,7 +202,7 @@ char	*get_new_string(t_minishell minishell, char *string)
 			if(string[str_ind])
 				str_ind++;
 		}
-		else if (string[str_ind] == '$' && (string[str_ind + 1] != '\0' && string[str_ind + 1] != '$' ))
+		else if (is_expandable_dollar(string, str_ind, in_double))
 		{
 			temp = new_str;
 			new_str = replace_var(minishell, string, (&str_ind), temp);
