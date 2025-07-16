@@ -24,7 +24,7 @@ int treat_input(t_minishell **minish, char *input)
 		return(1);
 	cmd_as_tokens = tokenizer(input);
 	if(!cmd_as_tokens)
-		return(3);		//handle errors
+		return( 3);		//handle errors
 	(*minish)->number_of_commands = count_commands(cmd_as_tokens);
 	(*minish)->instru = init_insrtu((*minish), cmd_as_tokens);
 	if (!(*minish)->instru)
@@ -90,7 +90,7 @@ int	main(int ac, char **av, char **envp)
 		if (input && *input)
     		add_history(input);
 		if (treat_input(&minish, input) == 3)
-			return (free(input), free_minish_total(&minish), 2);
+			minish->last_exit_status = 2; ///we go back to the prompt
 		free(input);
 	}
 	free_minish_total(&minish);
