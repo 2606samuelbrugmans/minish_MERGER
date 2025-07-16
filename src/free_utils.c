@@ -57,3 +57,18 @@ void free_envp(t_env *env)
 		env = next;
 	}
 }
+void free_array(char ***array)
+{
+	int i;
+
+	if (!array || !*array)
+		return;
+	i = 0;
+	while ((*array)[i])
+	{
+		free((*array)[i]);
+		i++;
+	}
+	free(*array);
+	*array = NULL;
+}

@@ -126,7 +126,9 @@ char *dollar_interrogation(t_minishell minishell, char *string, size_t **str_ind
 		exit_status_str = ft_itoa(minishell.last_exit_status); // Convert int to string
 		if (!exit_status_str)
 			return (NULL); // malloc error
-		renew_str = ft_strjoin(temp, exit_status_str); // Append to temp
+		renew_str = ft_strjoin(temp, exit_status_str); // Append to temp$µ
+		if (!renew_str)
+			return (free(exit_status_str), NULL); // malloc error
 		free(exit_status_str);
 		(**str_ind)++; // Move index forward
 	}

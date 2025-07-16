@@ -173,6 +173,8 @@ void	free_tokens(t_token **tokens);
 void	free_redirs(t_redir *redir, int count);
 void	free_commands(t_commands *cmd);
 void	free_envp(t_env *env);
+void	free_array(char ***array);
+
 ///////////////////////////////////////////////////////EXECUTION///////////////////////////////////////////////////////
 
 //family

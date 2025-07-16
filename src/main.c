@@ -90,7 +90,7 @@ int	main(int ac, char **av, char **envp)
 		if (input && *input)
     		add_history(input);
 		if (treat_input(&minish, input) == 3)
-			minish->last_exit_status = 2;
+			return (free(input), free_minish_total(&minish), 2);
 		free(input);
 	}
 	free_minish_total(&minish);
