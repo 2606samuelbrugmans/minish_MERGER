@@ -5,7 +5,7 @@ int	run(t_minishell *minish)
 	int i;
 
 	i = 0;
-	if (built_in_parent(minish->instru[0].executable[0]->content) && minish->number_of_commands == 1)
+	if (built_in_parent(minish->instru[0].exec[0]) && minish->number_of_commands == 1)
 		minish->last_exit_status = exec_builtin(minish->instru[0].exec, minish);
 	else
 	{

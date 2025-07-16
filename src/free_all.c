@@ -29,8 +29,6 @@ void	free_instructions(t_instructions *instru, int count)
 	i = 0;
 	while (i < count)
 	{
-		free_tokens(instru[i].executable);
-		free(instru[i].command);
 		free_redirs(instru[i].in_redir, instru[i].nb_files_in);
 		free_redirs(instru[i].out_redir, instru[i].nb_files_out);
 		if (instru[i].exec)

@@ -19,14 +19,15 @@ int treat_input(t_minishell **minish, char *input)
 	if(!input || *input == '\0')
 		return(1);
 	if(!first_check(input))
-		return(3);
+		return((*minish)->last_exit_status = 2, 3);
 	if(add_loc_var(&(*minish)->envp,&(*minish)->local_var, input))
 		return(1);
 	cmd_as_tokens = tokenizer(input);
 	if(!cmd_as_tokens)
-		return( 3);		//handle errors
+		return(free_commands(cmd_as_tokens), 0);		//handle errors
 	(*minish)->number_of_commands = count_commands(cmd_as_tokens);
 	(*minish)->instru = init_insrtu((*minish), cmd_as_tokens);
+	free_commands(cmd_as_tokens);
 	if (!(*minish)->instru)
 		return(0);		//handle errors or empty inputs
 	//need to free cmd_as_tokens_here
@@ -74,6 +75,7 @@ int	main(int ac, char **av, char **envp)
 	t_minishell		*minish;
 	char *prompt;
 	char *input;
+	int input_res;
 
 	init_minish(&minish, envp);
 	setup_signals();
@@ -89,8 +91,8 @@ int	main(int ac, char **av, char **envp)
 			break;
 		if (input && *input)
     		add_history(input);
-		if (treat_input(&minish, input) == 3)
-			minish->last_exit_status = 2; ///we go back to the prompt
+		if (treat_input(&minish, input) == 0)
+			return (free(input), free_minish_total(&minish), 0);
 		free(input);
 	}
 	free_minish_total(&minish);

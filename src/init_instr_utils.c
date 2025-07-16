@@ -1,5 +1,5 @@
 # include "../inc/minishell.h"
-
+/*
 t_token **init_executable(t_token **cmd_as_tokens, t_instructions *instru, int index, t_minishell *minish)
 {
 	int count;
@@ -19,3 +19,4 @@ t_token **init_executable(t_token **cmd_as_tokens, t_instructions *instru, int i
 	}
 	return (instru[index].executable);
 }
+*/

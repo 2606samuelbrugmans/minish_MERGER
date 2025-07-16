@@ -45,8 +45,11 @@ size_t count_next_tokens(t_token **whole_commands, size_t index)
 t_commands *new_command_node()
 {
 	t_commands *cmd = malloc(sizeof(t_commands));
+
 	if (!cmd)
 		return NULL;
+	printf("new_command_node: allocated at %p\n", (void*)cmd);
+
 	cmd->as_str = NULL;
 	cmd->args = NULL;
 	cmd->next_command = NULL;
@@ -63,7 +66,7 @@ int tok_type_init(char *content, t_commands *commands, size_t index)
 		return (0); // Handle malloc failure
 	commands->args[index]->content = ft_strdup(content);
 	if(!commands->args[index]->content)
-		return(0);
+		return(free_tokens(&commands->args[index]), 0);
 	if(index > 0)
 		previous_arg = commands->args[index - 1];
 	if (special_symb_2(content) != NONE )
@@ -110,10 +113,8 @@ t_commands  *tokenizer(char *input)
 {
 	t_commands whole_commands;
 	t_commands *first;
-	t_commands *current;
 	char **tab_input;
 	size_t tab_index;
-	size_t cmd_index;
 
 	if (!input || *input == '\0')
 		return(NULL);
@@ -122,47 +123,23 @@ t_commands  *tokenizer(char *input)
 	if (!tab_input || !tab_input[0])
 		return(NULL); // could be empty input or malloc error I think but have to check
 	tab_index = 0;
+	write(2, "tokenizer\n", 11);
 	whole_commands.args = malloc(sizeof(t_token *) * (tab_size(tab_input) + 1));
+	printf("tokenizer: allocated whole_commands.args at %p\n", (void*)whole_commands.args);
 	if(!whole_commands.args)
-	{
-		free_tab(tab_input);
-		exit(1);		//malloc error
-	}
+		return (free_tokens(whole_commands.args), free_tab(tab_input), NULL);
 	while(tab_input[tab_index])
 	{
 		if(!tok_type_init(tab_input[tab_index], &whole_commands, tab_index))
-		{
-			free_tab(tab_input);
-			exit(1);
-		}
+			return(free_tokens(whole_commands.args), free_tab(tab_input), NULL);
 		tab_index++;
 	}
+	write(2, "tokenizer 2\n", 13);
 	whole_commands.args[tab_index] = NULL;
 	if(!second_check(whole_commands)) //second chek at whole_command, so we still have pipes
-	{
-		free(whole_commands.args);
-		return(NULL);
-	}
-	cmd_index = 0;
-	tab_index = 0;
-	first = new_command_node();
-	if(!first)
-		return (NULL);
-	if (!fill_str(whole_commands, first, cmd_index))
-		return(NULL);		 //handle errors
-	linker(whole_commands, first, &cmd_index);
-	current = first;
-	while(whole_commands.args[cmd_index])
-	{
-		current->next_command = new_command_node();
-		current = current->next_command;
-		if (!fill_str(whole_commands, current, cmd_index))
-			return(NULL);		 //handle errors
-		linker(whole_commands, current, &cmd_index);
-		tab_index++;
-	}
-	current->next_command = NULL;	  //need this right ?
-	free(tab_input);
-	free(whole_commands.args);
-	return(first);
+		return(free_tokens(whole_commands.args), free_tab(tab_input), NULL); //handle errors
+	first = create_command_list(whole_commands);
+	write(2, "tokenizer 3\n", 13);
+	printf("tokenizer: first command as_str = %s\n", first->as_str);
+	return(free(whole_commands.args), free_tab(tab_input),first);
 }

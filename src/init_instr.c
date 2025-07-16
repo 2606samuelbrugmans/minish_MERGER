@@ -57,7 +57,7 @@ size_t	tok_to_keep_tab_len(t_token **tokens)
 	return(to_keep);
 }
 
-char **tok_into_tab(t_token **tokens)
+char **tok_into_tab(t_minishell *minish, t_token **tokens)
 {
 	size_t i;
 	size_t index;
@@ -72,17 +72,13 @@ char **tok_into_tab(t_token **tokens)
 		return (NULL);
 	while(tokens[i])
 	{
-		// printf("tok_into_tab: %s type %d\n", tokens[i]->content, tokens[i]->type);
 		if(is_executable_token(tokens[i]->type))
 		{
 			if (tokens[i]->content && tokens[i]->content[0] != '\0') // Check if content is not empty
 			{
-				tab[index] = ft_strdup(tokens[i]->content);
+				tab[index] = get_new_string(*minish, tokens[i]->content);
 				if (!tab[index])
-				{
-					free_tab(tab); // Free previously allocated memory in case of error
-					return (NULL); // malloc error
-				}
+					return ((free_array(&tab)), NULL); // malloc error
 				index++;
 			}
 		}
@@ -169,22 +165,20 @@ t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens)
 		return(NULL);
 	while(cmd_as_tokens)
 	{
+
 		ft_bzero(&instru[index], sizeof(t_instructions));
-		instru[index].executable = init_executable(cmd_as_tokens->args, &instru[index], index, minish);
 		instru[index].path_command = NULL;
 		instru[index].in_redir = NULL;
 		instru[index].out_redir = NULL;
 		if(!set_redir(&instru[index], cmd_as_tokens))
 			return(NULL);			//malloc error
-		instru[index].exec = tok_into_tab(cmd_as_tokens->args);
+		instru[index].exec = tok_into_tab(minish, cmd_as_tokens->args);
 		if(!instru[index].exec)
 			return(NULL);			//malloc error
-		instru[index].command = instru[index].exec[0];
 		// printf("init_instr: command = %s\n", instru[index].exec[0]);
-
+		printf("init_instr: command = %s\n", cmd_as_tokens->as_str);
 		cmd_as_tokens = cmd_as_tokens->next_command;
 		index ++;
 	}
-	instru[index].command = NULL;			//see if necessary and usable
 	return(instru);
 }

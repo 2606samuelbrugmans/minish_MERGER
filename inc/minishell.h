@@ -73,13 +73,7 @@ typedef struct s_env		//linked list of variable, always good to see how it works
 
 typedef struct s_instructions
 {
-	t_token **executable; 	// change here because too complex without it, basically for instr == ls -la file.txt
-							//executable.args[0].content = "ls"				and so executable.arg[0].type = CMD
-							//executable.args[1].content = "-la"			and so executable.arg[1].type = FLAG
-							//executable.args[2].content = "file.txt"		and so executable.arg[2].type = FILENAME
-							//executable.args[3] = NULL
-	char **exec;
-	char	*command;		// = whole str = "ls -la file.txt"
+	char **exec;		// = whole str = "ls -la file.txt"
 	int pipe[2];
 	t_redir	*in_redir;
 	int		nb_files_in;
@@ -119,6 +113,10 @@ size_t end_quotes(char *input, size_t *index);
 //tokenizer
 int tok_type_init(char *content, t_commands *commands, size_t index);
 t_commands	*tokenizer(char *input);
+t_commands	*create_command_list(t_commands whole);
+char	*fill_str(t_commands whole_commands, t_commands *current_command, size_t whole_index);
+t_commands *new_command_node();
+void  linker(t_commands whole_commands, t_commands *current_command, size_t *whole_index);
 
 //checker
 int first_check(char *input);
@@ -160,7 +158,7 @@ t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens);
 int set_redir(t_instructions *instr, t_commands *cmd);
 t_redir  *add_redir(t_redir *redir_list, t_token_type type, char *file, size_t *io_index);
 int	count_commands(t_commands *cmd_as_token);
-char **tok_into_tab(t_token **tokens);
+char **tok_into_tab(t_minishell *minish,t_token **tokens);
 size_t	tok_to_keep_tab_len(t_token **tokens);
 t_token **init_executable(t_token **cmd_as_tokens, 	t_instructions *instru, int index, t_minishell *minish);
 
