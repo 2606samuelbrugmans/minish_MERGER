@@ -208,18 +208,6 @@ char **ft_split_shell(char *input)
 		tab_index++;
 	}
 	tab_of_elem[tab_index] = NULL;
-	// printf("tab_size : %ld\n", tab_size);
-	// while (tab_of_elem[i])
-	// {
-	//	 printf("elem_%i : %s\n", i, tab_of_elem[i]);
-	//	 i++;
-	// }
-	// exit(1);
-	// while (tab_of_elem[i])
-	// {
-	// 	printf("tab_of_elem[i] : %s\n", tab_of_elem[i]);
-	// 	i++;
-	// }
 
 	return (tab_of_elem);
 }

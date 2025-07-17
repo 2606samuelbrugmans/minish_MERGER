@@ -95,7 +95,6 @@ void	child_process(t_minishell *minish, t_instructions *instr, int parser)
 	else
 		execute(minish, instr, parser);
 	close_stuff(minish, parser);
-	free_minish_total(&minish);
 	exit(0);
 }
 void	print_env_array(char **envp)

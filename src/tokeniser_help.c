@@ -22,18 +22,13 @@ t_commands	*create_command_list(t_commands whole)
 		temp = new_command_node();
 		if (!temp)
 			return (free_commands(first), NULL);
-		write(2, "about to fill", 14);
 		if (!fill_str(whole, temp, cmd_index))
 			return (free_commands(temp), free_commands(first), NULL);
-		write(2, "filled", 7);
-
 		if (!linker(whole, temp, &cmd_index))
 			return (free_commands(temp), free_commands(first), NULL);
-		write(2, "linked second", 14);
 		current->next_command = temp;
 		current = current->next_command;
 	}
-	write(2, "new command\n", 13);
 	return (current->next_command = NULL, first);
 }
 
