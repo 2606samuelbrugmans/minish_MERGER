@@ -1,17 +1,14 @@
-total 116
+total 104
 drwxrwxr-x 2 samuel samuel  4096 Jul 15 22:47 inc
 drwxrwxr-x 4 samuel samuel  4096 Jul 16 22:01 Libft
 -rw-rw-r-- 1 samuel samuel  1458 Jul 17 15:41 list_Thigns that don't work.txt
 -rw-rw-r-- 1 samuel samuel   713 Jul 15 22:47 main_test.c
 -rw-rw-r-- 1 samuel samuel   618 Jul 15 22:47 Makefile
--rwxrwxr-x 1 samuel samuel 60952 Jul 17 16:45 minishell
+-rwxrwxr-x 1 samuel samuel 60952 Jul 17 15:57 minishell
 -rw-r--r-- 1 samuel samuel   619 Jul 17 15:45 out
--rw-r--r-- 1 samuel samuel   827 Jul 17 16:05 outd
--rw-r--r-- 1 samuel samuel   725 Jul 17 15:57 outpus
 -rw-r--r-- 1 samuel samuel   619 Jul 17 15:49 outpush
 -rw-r--r-- 1 samuel samuel     0 Jul 16 09:40 output
 -rw-rw-r-- 1 samuel samuel     7 Jul 17 10:25 something
-drwxrwxr-x 2 samuel samuel  4096 Jul 17 16:45 src
+drwxrwxr-x 2 samuel samuel  4096 Jul 17 15:57 src
 -rw-r--r-- 1 samuel samuel   674 Jul 17 15:53 stuf
 -rw-r--r-- 1 samuel samuel   569 Jul 17 10:51 stuff
--rw-r--r-- 1 samuel samuel   827 Jul 17 16:01 za

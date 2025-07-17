@@ -16,12 +16,12 @@ char	*fill_str(t_commands whole_commands, t_commands *current_command, size_t wh
 	while(whole_commands.args[whole_index] && whole_commands.args[whole_index]->type != PIPE)
 	{
 		temp = ft_strjoin(res, " ");
-		free(res);
 		if (!temp)
-			return (NULL);
+			return (free(res), NULL);
+		free(res);
 		res = ft_strjoin(temp, whole_commands.args[whole_index]->content);
 		if(!res)
-			return(NULL);
+			return(free(temp), NULL);
 		free(temp);
 		whole_index++;
 	}
@@ -55,7 +55,31 @@ t_commands *new_command_node()
 	cmd->next_command = NULL;
 	return (cmd);
 }
+void free_command_args(t_token **args)
+{
+    if (!args)
+		return;
+    free(args);   // only the array of pointers, do NOT free args[i]
+}
+void	free_pipe_token(t_token **tokens)
+{
+	size_t	i;
 
+	if (!tokens)
+		return ;
+	i = 0;
+	while (tokens[i])
+	{
+		if (tokens[i]->type == PIPE)
+		{
+			free(tokens[i]->content);
+			free(tokens[i]);
+			tokens[i] = NULL;
+			break ;
+		}
+		i++;
+	}
+}
 int tok_type_init(char *content, t_commands *commands, size_t index)
 {
 	t_token *previous_arg;
@@ -66,7 +90,7 @@ int tok_type_init(char *content, t_commands *commands, size_t index)
 		return (0); // Handle malloc failure
 	commands->args[index]->content = ft_strdup(content);
 	if(!commands->args[index]->content)
-		return(free_tokens(&commands->args[index]), 0);
+		return( free_command_args(commands->args), commands->args[index] = NULL, 0);
 	if(index > 0)
 		previous_arg = commands->args[index - 1];
 	if (special_symb_2(content) != NONE )
@@ -84,21 +108,31 @@ int tok_type_init(char *content, t_commands *commands, size_t index)
 		else
 			commands->args[index]->type = CMD;
 	}
-	return(1);
+	printf("malloc tok %p  content %p for '%s'\n",
+       (void*)commands->args[index],
+       (void*)commands->args[index]->content,
+       content);
+	return( 1);
 }
 
-void  linker(t_commands whole_commands, t_commands *current_command, size_t *whole_index)
+bool  linker(t_commands whole_commands, t_commands *current_command, size_t *whole_index)
 {
 	size_t curr_index;
 	size_t count;
 
+	if (!whole_commands.args || !current_command)
+		return ( false);
 	curr_index = 0;
 	count = count_next_tokens(whole_commands.args, *whole_index);
+	if (count == 0)
+		return ( false);
 	current_command->args = malloc(sizeof(t_token *) * (count + 1));
 	if(!current_command->args)
-		return;  //malloc error
+		return (false);
 	while(curr_index < count)
 	{
+		if (!whole_commands.args[*whole_index])
+			return (free(current_command->args), current_command->args = NULL, false);
 		current_command->args[curr_index] = whole_commands.args[*whole_index];
 		curr_index++;
 		(*whole_index)++;
@@ -106,7 +140,7 @@ void  linker(t_commands whole_commands, t_commands *current_command, size_t *who
 	current_command->args[curr_index] = NULL;
 	if(whole_commands.args[*whole_index] && whole_commands.args[*whole_index]->type == PIPE)
 		(*whole_index)++;
-
+	return (true);
 }
 
 t_commands  *tokenizer(char *input)
@@ -131,7 +165,7 @@ t_commands  *tokenizer(char *input)
 	while(tab_input[tab_index])
 	{
 		if(!tok_type_init(tab_input[tab_index], &whole_commands, tab_index))
-			return(free_tokens(whole_commands.args), free_tab(tab_input), NULL);
+			return(free_commands(&whole_commands), free_tab(tab_input), NULL);
 		tab_index++;
 	}
 	write(2, "tokenizer 2\n", 13);
@@ -141,5 +175,5 @@ t_commands  *tokenizer(char *input)
 	first = create_command_list(whole_commands);
 	write(2, "tokenizer 3\n", 13);
 	printf("tokenizer: first command as_str = %s\n", first->as_str);
-	return(free(whole_commands.args), free_tab(tab_input),first);
+	return(free_pipe_token(whole_commands.args), free(whole_commands.args), free_tab(tab_input),first);
 }

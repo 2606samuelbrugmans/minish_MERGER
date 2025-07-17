@@ -47,17 +47,20 @@ void	free_instructions(t_instructions *instru, int count)
 	free(instru);
 }
 
-// void	free_minish_partial(t_minishell **minish)
-// {
-// 	if (!minish || !*minish)
-// 		return ;
-// 	if((*minish)->parsed_string)
-// 		free((*minish)->parsed_string);
-// 	if ((*minish)->fd_pipes)
-// 		free((*minish)->fd_pipes);
-// 	if ((*minish)->instru)
-// 		free_instructions((*minish)->instru, (*minish)->number_of_commands);
-// }
+void	free_minish_partial(t_minishell **minish)
+{
+ 	if (!minish || !*minish)
+ 		return ;
+ 	if((*minish)->parsed_string)
+ 		free((*minish)->parsed_string);
+ 	if ((*minish)->fd_pipes)
+ 		free((*minish)->fd_pipes);
+ 	if ((*minish)->instru)
+ 		free_instructions((*minish)->instru, (*minish)->number_of_commands);
+	(*minish)->instru = NULL;
+	(*minish)->number_of_commands = 0;
+	(*minish)->fd_pipes = NULL;
+ }
 
 void	free_minish_total(t_minishell **minish)
 {

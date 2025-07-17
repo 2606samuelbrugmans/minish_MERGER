@@ -24,7 +24,7 @@ int treat_input(t_minishell **minish, char *input)
 		return(1);
 	cmd_as_tokens = tokenizer(input);
 	if(!cmd_as_tokens)
-		return(free_commands(cmd_as_tokens), 0);		//handle errors
+		return(0);		//handle errors
 	(*minish)->number_of_commands = count_commands(cmd_as_tokens);
 	(*minish)->instru = init_insrtu((*minish), cmd_as_tokens);
 	free_commands(cmd_as_tokens);

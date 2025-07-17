@@ -9,9 +9,10 @@ void	free_tokens(t_token **tokens)
 	i = 0;
 	while (tokens[i])
 	{
-		printf("free_tokens: freeing token content[%d] at %p\n", i, (void*)tokens[i]->content);
+		printf("free tok %p  content %p\n",
+       (void*)tokens[i],
+       (void*)tokens[i]->content);
 		free(tokens[i]->content);
-		printf("free_tokens: freeing token[%d] at %p\n", i, (void*)tokens[i]);
 		free(tokens[i]);
 		i++;
 	}
@@ -34,9 +35,10 @@ void	free_redirs(t_redir *redir, int count)
 }
 void free_commands(t_commands *cmd)
 {
-	t_commands *current = cmd;
+	t_commands *current;
 	t_commands *next;
 
+	current = cmd;
 	while (current)
 	{
 		next = current->next_command;
@@ -75,4 +77,10 @@ void free_array(char ***array)
 	}
 	free(*array);
 	*array = NULL;
+}
+void	free_tokens_partial(t_token **tokens)
+{
+	if (!tokens)
+		return;
+	free(tokens);  // only the array, not what it points to
 }

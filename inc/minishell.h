@@ -116,7 +116,8 @@ t_commands	*tokenizer(char *input);
 t_commands	*create_command_list(t_commands whole);
 char	*fill_str(t_commands whole_commands, t_commands *current_command, size_t whole_index);
 t_commands *new_command_node();
-void  linker(t_commands whole_commands, t_commands *current_command, size_t *whole_index);
+bool linker(t_commands whole_commands, t_commands *current_command, size_t *whole_index);
+void	free_tokens_partial(t_token **tokens);
 
 //checker
 int first_check(char *input);
@@ -151,7 +152,7 @@ int add_loc_var(t_env **minish_envp, t_env **minish_local_var, char *input);
 bool is_expandable_dollar(const char *string, int str_ind, bool in_double);
 void	append_char(char **dest, char c);
 void	handle_single_quote(char **dest, const char *str, size_t *i);
-void	handle_expand(char **dest, t_minishell ms, const char *str, size_t *i);
+void	handle_expand(char **dest, t_minishell ms, char *str, size_t *i);
 
 //init_instr
 t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens);

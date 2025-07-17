@@ -175,7 +175,6 @@ t_instructions	*init_insrtu(t_minishell *minish, t_commands	*cmd_as_tokens)
 		instru[index].exec = tok_into_tab(minish, cmd_as_tokens->args);
 		if(!instru[index].exec)
 			return(NULL);			//malloc error
-		// printf("init_instr: command = %s\n", instru[index].exec[0]);
 		printf("init_instr: command = %s\n", cmd_as_tokens->as_str);
 		cmd_as_tokens = cmd_as_tokens->next_command;
 		index ++;

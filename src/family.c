@@ -40,7 +40,7 @@ void	wait_exit(t_minishell *minish, pid_t	last_pid)
 		}
 		index++;
 	}
-
+	free_minish_partial(&minish);
 }
 void	process(t_minishell *minish)
 {

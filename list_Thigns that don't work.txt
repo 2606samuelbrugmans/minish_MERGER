@@ -1,3 +1,20 @@
-init_env.c : l 54-55
+got the program to exit cleanly when no command is passed
+don't expand variable before tokenising please it's important !!!!!
 
 
+double free issues with 
+==13132==    by 0x10BB8D: free_instructions (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==    by 0x10BCFE: free_minish_total (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==    by 0x10E059: main (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==  Address 0x4b58800 is 0 bytes inside a block of size 4 free'd
+==13132==    at 0x484988F: free (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13132==    by 0x10BA85: free_instructions (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==    by 0x10BCFE: free_minish_total (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==    by 0x10E059: main (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==  Block was alloc'd at
+==13132==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13132==    by 0x10FC13: ft_strdup (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==    by 0x10CC10: tok_into_tab (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==    by 0x10D1FA: init_insrtu (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==    by 0x10DD25: treat_input (in /home/samuel/stef_minish/minish_MERGER/minishell)
+==13132==    by 0x10E014: main (in /home/samuel/stef_minish/minish_MERGER/minishell)

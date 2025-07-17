@@ -117,22 +117,17 @@ char *dollar_interrogation(t_minishell minishell, char *string, size_t **str_ind
 	char *exit_status_str;
 	char *renew_str;
 	
-	renew_str = ft_strdup("");
-	if (!renew_str)
-		return (NULL);
+	if (string[**str_ind] != '?')
+		return( temp);
 	exit_status_str = NULL;
-	if (string[**str_ind] == '?')
-	{
-		exit_status_str = ft_itoa(minishell.last_exit_status); // Convert int to string
-		if (!exit_status_str)
-			return (NULL); // malloc error
-		renew_str = ft_strjoin(temp, exit_status_str); // Append to temp$µ
-		if (!renew_str)
-			return (free(exit_status_str), NULL); // malloc error
-		free(exit_status_str);
-		(**str_ind)++; // Move index forward
-	}
-
+	exit_status_str = ft_itoa(minishell.last_exit_status); // Convert int to string
+	if (!exit_status_str)
+		return (NULL); // malloc error
+	renew_str = ft_strjoin(temp, exit_status_str); // Append to temp$µ
+	if (!renew_str)
+		return (free(exit_status_str), NULL); // malloc error
+	free(exit_status_str);
+	(**str_ind)++; // Move index forward
 	return (renew_str);
 }
 
@@ -145,24 +140,20 @@ char *replace_var(t_minishell minishell, char *string, size_t *str_ind, char *te
 
 	len_var = 0;
 	(*str_ind)++;
-	renew_str = dollar_interrogation(minishell, string, &str_ind, temp);
-	if (renew_str == NULL)
-		return (NULL); // malloc error
-	if (string[*str_ind - 1] == '?')
-		return (renew_str); // If ? found and treated return for nex
+	if (string[*str_ind] == '?')
+		return (dollar_interrogation(minishell, string, &str_ind, temp));
 	while(!is_env_char_end(string[*str_ind + len_var]))
 		len_var++;
 	pres_var = ft_substr(string, *str_ind, len_var);
 	if(!pres_var)
-		return(NULL);	   //malloc error;
+		return( NULL);	   //malloc error;
 	(*str_ind) += len_var;
 	actual_var = get_VAR(&minishell.envp, &minishell.local_var, pres_var);
 	if(actual_var)
 		renew_str = ft_strjoin(temp, actual_var->value);
-	else 
-		return (temp); // If variable not found, return the original string
-	free(temp);
-	return (renew_str);
+	else
+		renew_str = ft_strjoin(temp, "");
+	return (free(pres_var), renew_str);
 }
 
 char *get_new_string(t_minishell minishell, char *string)

@@ -48,8 +48,6 @@ char *get_prompt(t_env **envp)
 
 	user_var = get_VAR(envp, NULL, "USER");
 	if(!user_var || !user_var->value)
-		return(NULL);			//handle error ?
-	if(!user_var || !user_var->value)
 		user = ft_strdup("user :");
 	else
 		user = ft_strjoinchar(user_var->value, ':');

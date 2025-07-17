@@ -4,6 +4,7 @@
 void append_char(char **dest, char c)
 {
 	char *temp;
+
 	temp = *dest;
 	*dest = ft_strjoinchar(temp, c);
 	free(temp);
@@ -23,9 +24,10 @@ void handle_single_quote(char **dest, const char *str, size_t *i)
 		(*i)++;  // skip closing quote
 }
 
-void handle_expand(char **dest, t_minishell ms, const char *str, size_t *i)
+void handle_expand(char **dest, t_minishell ms, char *str, size_t *i)
 {
 	char *temp;
 	temp = *dest;
 	*dest = replace_var(ms, str, i, temp);
+	free(temp);
 }
